@@ -106,6 +106,59 @@ class GanttChart {
         i.start.setHours(0,0,0,0);
         i.due.setHours(0,0,0,0);
     });
+    
+    this.sortIssuesByHierarchy();
+    this.updateVisibleIssues();
+  }
+  
+  sortIssuesByHierarchy() {
+      const issueMap = new Map();
+      this.issues.forEach(i => {
+          i.children = [];
+          i.expanded = true; // Default expanded
+          issueMap.set(i.id, i);
+      });
+      
+      const roots = [];
+      this.issues.forEach(i => {
+          if (i.parent_id && issueMap.has(i.parent_id)) {
+              issueMap.get(i.parent_id).children.push(i);
+          } else {
+              roots.push(i);
+          }
+      });
+      
+      // Sort by ID for stability
+      const sortNodes = (nodes) => {
+          nodes.sort((a, b) => a.id - b.id);
+          nodes.forEach(n => {
+              if (n.children.length > 0) sortNodes(n.children);
+          });
+      };
+      sortNodes(roots);
+      
+      this.rootIssues = roots;
+  }
+
+  updateVisibleIssues() {
+      const visible = [];
+      const traverse = (nodes, level) => {
+          nodes.forEach(node => {
+              node.level = level;
+              visible.push(node);
+              if (node.expanded && node.children.length > 0) {
+                  traverse(node.children, level + 1);
+              }
+          });
+      };
+      traverse(this.rootIssues, 0);
+      this.visibleIssues = visible;
+  }
+
+  toggleNode(issue) {
+      issue.expanded = !issue.expanded;
+      this.updateVisibleIssues();
+      this.render();
   }
 
   calculateBounds() {
@@ -153,11 +206,11 @@ class GanttChart {
 
   renderSide() {
     const columns = [
-      { key: 'subject', label: 'チケット', width: 180, render: (i) => `#${i.id} ${i.subject}` },
-      { key: 'status', label: 'ステータス', width: 110, render: (i) => i.status },
-      { key: 'assignee', label: '担当者', width: 130, render: (i) => i.assigned_to || '未割当' },
-      { key: 'progress', label: '進捗', width: 80, render: (i) => `${i.done_ratio || 0}%` },
-      { key: 'due', label: '期日', width: 80, render: (i) => i.due_date || '-' }
+      { key: 'subject', label: 'TASK', width: 240, render: (i) => i.subject },
+      { key: 'id', label: 'ID', width: 60, render: (i) => i.id },
+      { key: 'status', label: 'STATUS', width: 100, render: (i) => i.status },
+      { key: 'start', label: 'START', width: 90, render: (i) => i.start_date || '-' },
+      { key: 'due', label: 'DUE', width: 90, render: (i) => i.due_date || '-' }
     ];
 
     this.sideWidth = columns.reduce((sum, col) => sum + col.width, 0);
@@ -178,9 +231,9 @@ class GanttChart {
 
     this.sideBody.style.minWidth = `${this.sideWidth}px`;
     this.sideBody.style.width = `${this.sideWidth}px`;
-    this.sideBody.style.height = `${this.issues.length * this.rowHeight}px`;
+    this.sideBody.style.height = `${this.visibleIssues.length * this.rowHeight}px`;
 
-    this.issues.forEach((issue) => {
+    this.visibleIssues.forEach((issue) => {
       const row = document.createElement('div');
       row.className = 'gantt-side-row';
       row.style.height = `${this.rowHeight}px`;
@@ -189,6 +242,27 @@ class GanttChart {
         cell.className = 'gantt-side-cell';
         cell.style.width = `${col.width}px`;
         if (col.key === 'subject') {
+          // Indent
+          const indent = 12 + (issue.level * 20);
+          cell.style.paddingLeft = `${indent}px`;
+          
+          // Toggle
+          if (issue.children.length > 0) {
+              const toggle = document.createElement('span');
+              toggle.className = 'gantt-toggle';
+              toggle.textContent = issue.expanded ? '▼' : '▶';
+              toggle.onclick = (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  this.toggleNode(issue);
+              };
+              cell.appendChild(toggle);
+          } else {
+              // Spacer for alignment if no children but indented
+              // Actually padding handles indent, but maybe we need space for icon?
+              // Let's keep it simple.
+          }
+
           const link = document.createElement('a');
           link.href = `/issues/${issue.id}/edit`;
           link.target = '_blank';
@@ -304,7 +378,7 @@ class GanttChart {
     this.header.style.width = `${totalWidth}px`;
     this.body.style.width = `${totalWidth}px`;
     this.svg.style.width = `${totalWidth}px`;
-    this.svg.style.height = (this.issues.length * this.rowHeight) + 'px';
+    this.svg.style.height = (this.visibleIssues.length * this.rowHeight) + 'px';
   }
 
   renderBody() {
@@ -316,7 +390,7 @@ class GanttChart {
 
     this.renderDayBands();
     
-    this.issues.forEach((issue, index) => {
+    this.visibleIssues.forEach((issue, index) => {
         const row = document.createElement('div');
         row.className = 'gantt-row';
         row.dataset.index = index;
@@ -324,7 +398,17 @@ class GanttChart {
         const bar = document.createElement('div');
         bar.className = 'gantt-bar';
         bar.dataset.id = issue.id;
-        bar.textContent = `#${issue.id} ${issue.subject}`;
+        
+        if (issue.children.length > 0) {
+            bar.classList.add('parent');
+        } else {
+            // Status based coloring class
+            if (issue.status === 'Closed' || issue.done_ratio === 100) {
+                bar.classList.add('done');
+            } else if (new Date(issue.due) < new Date() && (issue.done_ratio || 0) < 100) {
+                bar.classList.add('delayed');
+            }
+        }
         
         const left = this.dateToPixels(issue.start);
         const width = this.dateToPixels(issue.due) - left + this.dayWidth;
@@ -332,9 +416,25 @@ class GanttChart {
         bar.style.left = left + 'px';
         bar.style.width = width + 'px';
         
+        // Progress background
+        const progress = document.createElement('div');
+        progress.className = 'gantt-bar-progress';
+        progress.style.width = `${issue.done_ratio || 0}%`;
+        bar.appendChild(progress);
+
+        // Label
+        const label = document.createElement('div');
+        label.className = 'gantt-bar-label';
+        label.textContent = `#${issue.id} ${issue.subject}`;
+        bar.appendChild(label);
+        
         const resizeHandle = document.createElement('div');
         resizeHandle.className = 'gantt-handle-resize';
         bar.appendChild(resizeHandle);
+        
+        const resizeHandleLeft = document.createElement('div');
+        resizeHandleLeft.className = 'gantt-handle-resize-left';
+        bar.appendChild(resizeHandleLeft);
         
         const connectHandle = document.createElement('div');
         connectHandle.className = 'gantt-handle-connect';
@@ -346,6 +446,41 @@ class GanttChart {
         bar.addEventListener('mousedown', (e) => this.handleMouseDown(e, issue));
     });
   }
+
+  renderDayBands() {
+    const bands = document.createElement('div');
+    bands.className = 'gantt-day-bands';
+    const totalHeight = this.visibleIssues.length * this.rowHeight;
+    bands.style.height = `${totalHeight}px`;
+
+    let cursor = new Date(this.minDate);
+    let left = 0;
+    const todayStr = new Date().toDateString();
+
+    while (cursor <= this.maxDate) {
+      const band = document.createElement('div');
+      band.className = 'gantt-day-band';
+      band.style.left = `${left}px`;
+      band.style.width = `${this.dayWidth}px`;
+
+      const wday = cursor.getDay();
+      if (wday === 0) {
+        band.classList.add('sun');
+      } else if (wday === 6) {
+        band.classList.add('sat');
+      }
+      
+      if (cursor.toDateString() === todayStr) {
+          band.classList.add('today');
+      }
+
+      bands.appendChild(band);
+      left += this.dayWidth;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+
+    this.body.appendChild(bands);
+  }
   
   renderConnections() {
       // Clear existing lines (except defs)
@@ -353,12 +488,13 @@ class GanttChart {
       lines.forEach(l => l.remove());
       
       this.relations.forEach(rel => {
-          const fromIssue = this.issues.find(i => i.id == rel.from);
-          const toIssue = this.issues.find(i => i.id == rel.to);
+          // Find if both issues are visible
+          const fromIdx = this.visibleIssues.findIndex(i => i.id == rel.from);
+          const toIdx = this.visibleIssues.findIndex(i => i.id == rel.to);
           
-          if (fromIssue && toIssue) {
-              const fromIdx = this.issues.indexOf(fromIssue);
-              const toIdx = this.issues.indexOf(toIssue);
+          if (fromIdx !== -1 && toIdx !== -1) {
+              const fromIssue = this.visibleIssues[fromIdx];
+              const toIssue = this.visibleIssues[toIdx];
               
               const x1 = this.dateToPixels(fromIssue.due) + this.dayWidth;
               const y1 = (fromIdx * this.rowHeight) + this.barTop + (this.barHeight / 2);
@@ -402,10 +538,22 @@ class GanttChart {
         e.stopPropagation();
         const bar = e.target.closest('.gantt-bar');
         this.dragState = {
-            type: 'resize',
+            type: 'resize-right',
             issue: issue,
             startX: e.clientX,
             initialWidth: bar.offsetWidth,
+            initialLeft: parseFloat(bar.style.left),
+            element: bar
+        };
+    } else if (e.target.classList.contains('gantt-handle-resize-left')) {
+        e.stopPropagation();
+        const bar = e.target.closest('.gantt-bar');
+        this.dragState = {
+            type: 'resize-left',
+            issue: issue,
+            startX: e.clientX,
+            initialWidth: bar.offsetWidth,
+            initialLeft: parseFloat(bar.style.left),
             element: bar
         };
     } else if (e.target.classList.contains('gantt-handle-connect')) {
@@ -445,8 +593,13 @@ class GanttChart {
         
         if (this.dragState.type === 'move') {
             this.dragState.element.style.left = (this.dragState.initialLeft + dx) + 'px';
-        } else if (this.dragState.type === 'resize') {
-            this.dragState.element.style.width = (this.dragState.initialWidth + dx) + 'px';
+        } else if (this.dragState.type === 'resize-right') {
+            this.dragState.element.style.width = Math.max(this.dayWidth, this.dragState.initialWidth + dx) + 'px';
+        } else if (this.dragState.type === 'resize-left') {
+            const newWidth = Math.max(this.dayWidth, this.dragState.initialWidth - dx);
+            const newLeft = this.dragState.initialLeft + (this.dragState.initialWidth - newWidth);
+            this.dragState.element.style.width = newWidth + 'px';
+            this.dragState.element.style.left = newLeft + 'px';
         }
         // Re-render connections while dragging could be expensive, maybe just on end
         // But for smoothness:
@@ -459,7 +612,7 @@ class GanttChart {
         const dx = e.clientX - this.dragState.startX;
         const daysDiff = this.pixelsToDays(dx);
         
-        if (daysDiff !== 0) {
+        if (daysDiff !== 0 || this.dragState.type === 'resize-left') { // resize-left needs careful check
             const issue = this.dragState.issue;
             let newStart = new Date(issue.start);
             let newDue = new Date(issue.due);
@@ -467,14 +620,23 @@ class GanttChart {
             if (this.dragState.type === 'move') {
                 newStart.setDate(newStart.getDate() + daysDiff);
                 newDue.setDate(newDue.getDate() + daysDiff);
-            } else if (this.dragState.type === 'resize') {
+            } else if (this.dragState.type === 'resize-right') {
                 newDue.setDate(newDue.getDate() + daysDiff);
+            } else if (this.dragState.type === 'resize-left') {
+                 // For resize left, dx positive means start date moves right (later)
+                 // dx negative means start date moves left (earlier)
+                 newStart.setDate(newStart.getDate() + daysDiff);
             }
             
-            issue.start = newStart;
-            issue.due = newDue;
-            
-            await this.updateIssue(issue.id, newStart, newDue);
+            // Validation: Start <= Due
+            if (newStart <= newDue) {
+                issue.start = newStart;
+                issue.due = newDue;
+                await this.updateIssue(issue.id, newStart, newDue);
+            } else {
+                // Revert visual if invalid
+                this.render();
+            }
             this.render(); 
         } else {
              this.render();
@@ -544,34 +706,7 @@ class GanttChart {
       }
   }
 
-  renderDayBands() {
-    const bands = document.createElement('div');
-    bands.className = 'gantt-day-bands';
-    const totalHeight = this.issues.length * this.rowHeight;
-    bands.style.height = `${totalHeight}px`;
 
-    let cursor = new Date(this.minDate);
-    let left = 0;
-    while (cursor <= this.maxDate) {
-      const band = document.createElement('div');
-      band.className = 'gantt-day-band';
-      band.style.left = `${left}px`;
-      band.style.width = `${this.dayWidth}px`;
-
-      const wday = cursor.getDay();
-      if (wday === 0) {
-        band.classList.add('sun');
-      } else if (wday === 6) {
-        band.classList.add('sat');
-      }
-
-      bands.appendChild(band);
-      left += this.dayWidth;
-      cursor.setDate(cursor.getDate() + 1);
-    }
-
-    this.body.appendChild(bands);
-  }
 
   renderProgressLightning() {
     if (!this.svg || this.issues.length === 0) return;
@@ -618,28 +753,9 @@ class GanttChart {
       baseline.setAttribute('x1', todayX);
       baseline.setAttribute('x2', todayX);
       baseline.setAttribute('y1', 0);
-      baseline.setAttribute('y2', this.issues.length * this.rowHeight);
+      baseline.setAttribute('y2', this.visibleIssues.length * this.rowHeight);
       this.svg.appendChild(baseline);
     }
-
-    const buildPath = (points) => {
-      if (!points.length) return '';
-      return points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-    };
-
-    const actualPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    actualPath.setAttribute('class', 'gantt-progress-line');
-    actualPath.setAttribute('d', buildPath(actualPoints));
-    this.svg.appendChild(actualPath);
-
-    actualPoints.forEach((p) => {
-      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      dot.setAttribute('class', `gantt-progress-point ${p.status}`);
-      dot.setAttribute('cx', p.x);
-      dot.setAttribute('cy', p.y);
-      dot.setAttribute('r', 4);
-      this.svg.appendChild(dot);
-    });
   }
 
   scrollToToday() {

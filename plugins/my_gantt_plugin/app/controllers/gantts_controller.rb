@@ -24,7 +24,8 @@ class GanttsController < ApplicationController
           status: i.status.name,
           assigned_to: i.assigned_to&.name,
           done_ratio: i.done_ratio,
-          estimated_hours: i.estimated_hours
+          estimated_hours: i.estimated_hours,
+          parent_id: i.parent_id
         }
       },
       relations: relations.map { |r|
