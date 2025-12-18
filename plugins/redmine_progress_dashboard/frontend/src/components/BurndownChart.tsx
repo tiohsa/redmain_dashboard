@@ -13,7 +13,7 @@ export const BurndownChart: React.FC<Props> = ({ data }) => {
         <div style={{ height: '350px', background: '#fff', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <h3 style={{ display: 'flex', alignItems: 'center' }}>
                 Burndown Chart
-                <InfoTooltip text="プロジェクトの残チケット数の推移を表示します。理想線と比較して進捗の遅れを確認できます。" />
+                <InfoTooltip text="プロジェクトの残チケット数の推移を表示します。実績線が理想線に近い、または下回っていれば順調です。大幅に上回っている場合は計画の見直しが必要です。" />
             </h3>
             <ResponsiveContainer width="100%" height="90%">
                 <LineChart data={data.series}>

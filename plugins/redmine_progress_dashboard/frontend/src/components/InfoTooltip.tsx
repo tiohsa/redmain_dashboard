@@ -3,9 +3,10 @@ import './InfoTooltip.css';
 
 interface Props {
     text: string;
+    position?: 'top' | 'bottom';
 }
 
-export const InfoTooltip: React.FC<Props> = ({ text }) => {
+export const InfoTooltip: React.FC<Props> = ({ text, position = 'top' }) => {
     const [isVisible, setIsVisible] = useState(false);
 
     return (
@@ -20,7 +21,7 @@ export const InfoTooltip: React.FC<Props> = ({ text }) => {
                 <path d="M12 8H12.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             </svg>
             {isVisible && (
-                <div role="tooltip" className="tooltip-box">
+                <div role="tooltip" className={`tooltip-box ${position}`}>
                     <div className="tooltip-content">
                         {text}
                     </div>

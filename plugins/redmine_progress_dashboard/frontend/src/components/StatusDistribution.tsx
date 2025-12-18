@@ -27,7 +27,7 @@ export const StatusDistribution: React.FC<Props> = ({ data }) => {
         <div style={{ height: '350px', background: '#fff', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <h3 style={{ display: 'flex', alignItems: 'center' }}>
                 Status Distribution (CFD)
-                <InfoTooltip text="ステータスごとのチケット数の推移（累積フロー図）を表示します。プロセスの停滞やボトルネックの特定に役立ちます。" />
+                <InfoTooltip text="ステータスごとのチケット数の推移を表示します。各ステータスの幅が一定であれば順調ですが、特定の幅が急激に拡大している場所はボトルネックです。" />
             </h3>
             <ResponsiveContainer width="100%" height="90%">
                 <AreaChart data={chartData}>

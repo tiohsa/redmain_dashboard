@@ -12,7 +12,7 @@ export const IssueTable: React.FC<Props> = ({ data }) => {
         <div style={{ background: '#fff', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <h3 style={{ display: 'flex', alignItems: 'center' }}>
                 Issue Details
-                <InfoTooltip text="プロジェクト内の詳細なチケット一覧です。遅延や滞留の日数を確認できます。" />
+                <InfoTooltip text="詳細なチケット一覧です。遅延日数や滞留日数が「-」または小さい値であれば順調です。大きな値のチケットは早急な確認が必要であることを示します。" />
             </h3>
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>

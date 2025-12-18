@@ -16,7 +16,7 @@ export const WorkloadChart: React.FC<Props> = ({ data }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h3 style={{ display: 'flex', alignItems: 'center' }}>
                     Workload Analysis
-                    <InfoTooltip text="担当者ごとの作業負荷を表示します。チケット数または予定工数で切り替え可能です。" />
+                    <InfoTooltip text="担当者ごとの作業負荷を表示します。負荷が特定の人に偏らず分散しているのが理想です。集中している場合は再割当てを検討してください。" />
                 </h3>
                 <select value={metric} onChange={(e) => setMetric(e.target.value as any)}>
                     <option value="count">Issue Count</option>

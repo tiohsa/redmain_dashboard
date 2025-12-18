@@ -17,7 +17,7 @@ export const DelayAnalysis: React.FC<Props> = ({ data }) => {
         <div style={{ height: '350px', background: '#fff', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <h3 style={{ display: 'flex', alignItems: 'center' }}>
                 Delay & Stagnation
-                <InfoTooltip text="期限超過のトレンド、および遅延日数・滞留日数の分布を表示します。" />
+                <InfoTooltip text="期限超過のトレンド、および遅延・滞留の分布を表示します。遅延件数が減少傾向で、遅延日数が短いほど健全です。右肩上がりの場合は改善が必要です。" />
             </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', height: '100%' }}>
