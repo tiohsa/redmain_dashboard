@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import type { WorkloadData } from '../types';
 
+import { InfoTooltip } from './InfoTooltip';
+
 interface Props {
     data: WorkloadData;
 }
@@ -12,7 +14,10 @@ export const WorkloadChart: React.FC<Props> = ({ data }) => {
     return (
         <div style={{ height: '350px', background: '#fff', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3>Workload Analysis</h3>
+                <h3 style={{ display: 'flex', alignItems: 'center' }}>
+                    Workload Analysis
+                    <InfoTooltip text="担当者ごとの作業負荷を表示します。チケット数または予定工数で切り替え可能です。" />
+                </h3>
                 <select value={metric} onChange={(e) => setMetric(e.target.value as any)}>
                     <option value="count">Issue Count</option>
                     <option value="estimated_hours">Estimated Hours</option>

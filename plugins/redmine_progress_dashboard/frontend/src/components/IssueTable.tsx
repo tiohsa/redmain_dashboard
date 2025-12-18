@@ -1,6 +1,8 @@
 import React from 'react';
 import type { Issue } from '../types';
 
+import { InfoTooltip } from './InfoTooltip';
+
 interface Props {
     data: Issue[];
 }
@@ -8,7 +10,10 @@ interface Props {
 export const IssueTable: React.FC<Props> = ({ data }) => {
     return (
         <div style={{ background: '#fff', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            <h3>Issue Details</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center' }}>
+                Issue Details
+                <InfoTooltip text="プロジェクト内の詳細なチケット一覧です。遅延や滞留の日数を確認できます。" />
+            </h3>
             <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>

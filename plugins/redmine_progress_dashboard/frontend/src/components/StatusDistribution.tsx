@@ -2,6 +2,8 @@ import React from 'react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import type { StatusDistribution as StatusData } from '../types';
 
+import { InfoTooltip } from './InfoTooltip';
+
 interface Props {
     data: StatusData;
 }
@@ -23,7 +25,10 @@ export const StatusDistribution: React.FC<Props> = ({ data }) => {
 
     return (
         <div style={{ height: '350px', background: '#fff', padding: '1rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-            <h3>Status Distribution (CFD)</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center' }}>
+                Status Distribution (CFD)
+                <InfoTooltip text="ステータスごとのチケット数の推移（累積フロー図）を表示します。プロセスの停滞やボトルネックの特定に役立ちます。" />
+            </h3>
             <ResponsiveContainer width="100%" height="90%">
                 <AreaChart data={chartData}>
                     <CartesianGrid strokeDasharray="3 3" />
