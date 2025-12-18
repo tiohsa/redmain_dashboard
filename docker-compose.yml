@@ -10,6 +10,8 @@ services:
       REDMINE_DB_PASSWORD: password
       REDMINE_SECRET_KEY_BASE: supersecretkey
       SECRET_KEY_BASE: supersecretkey
+    env_file:
+      - .env.local
     volumes:
       - ./plugins:/usr/src/redmine/plugins
       - ./themes:/usr/src/redmine/public/themes

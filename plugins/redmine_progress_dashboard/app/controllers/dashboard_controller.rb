@@ -3,8 +3,12 @@ class DashboardController < ApplicationController
 
   before_action :find_project, :authorize
 
+  def show
+    render :index
+  end
+
   def index
-    # Renders the SPA mount point
+    show
   end
 
   def data

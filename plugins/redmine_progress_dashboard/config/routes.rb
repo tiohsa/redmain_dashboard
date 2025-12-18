@@ -1,2 +1,6 @@
-get 'projects/:project_id/dashboard', to: 'dashboard#index', as: 'project_dashboard'
-get 'projects/:project_id/dashboard/data', to: 'dashboard#data', as: 'project_dashboard_data'
+resources :projects do
+  resource :dashboard, only: [:show], controller: 'dashboard' do
+    get :data
+    post :analyze, controller: 'ai_analysis'
+  end
+end
