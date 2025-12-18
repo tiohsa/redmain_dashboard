@@ -26,7 +26,6 @@ function App({ projectId }: Props) {
 
   return (
     <div className="dashboard-container" style={{ padding: '1rem', fontFamily: 'Sans-Serif', background: '#f6f6f6' }}>
-      <h1>Project Progress Dashboard</h1>
       <KPICards data={data.kpis} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
