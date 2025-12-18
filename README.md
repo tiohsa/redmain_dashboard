@@ -10,6 +10,7 @@ Redmine のチケット情報を集約・分析し、プロジェクトの進捗
 - **担当者別負荷分析**: 担当者ごとのチケット数/予定工数
 - **遅延・滞留分析**: 遅延トレンド、遅延日数/滞留日数のヒストグラム
 - **チケット一覧表**: ドリルダウン可能な詳細テーブル
+- **AI プロジェクト分析**: LLMによるプロジェクトの状態分析とアドバイス（Gemini / Azure OpenAI 対応）
 
 ## Requirements
 
@@ -38,6 +39,32 @@ Redmine のチケット情報を集約・分析し、プロジェクトの進捗
    ```
 
 4. プロジェクトメニューに「Pro Dashboard」タブが表示されます。
+
+## AI Analysis Setup (Optional)
+
+AIによるプロジェクト分析機能を使用するには、以下の環境変数の設定が必要です。設定されていない場合はモックデータによる回答が表示されます。
+
+### LLM Provider の選択
+
+`LLM_PROVIDER` 環境変数でプロバイダーを指定します。
+- `gemini` (デフォルト: Gemini 1.5 Flash)
+- `azure_openai` (Azure OpenAI Service)
+
+### Gemini の設定
+- `GEMINI_API_KEY`: Google AI Studio等で発行した API キー
+
+### Azure OpenAI の設定
+- `AZURE_OPENAI_API_KEY`: API キー
+- `AZURE_OPENAI_ENDPOINT`: エンドポイント URL (例: `https://YOUR_RESOURCE.openai.azure.com/`)
+- `AZURE_OPENAI_DEPLOYMENT_ID`: デプロイメント名
+
+### Docker Compose での設定例 (`.env.local`)
+プロジェクトルートの `.env.local` に以下のように記述します：
+```env
+LLM_PROVIDER=gemini
+GEMINI_API_KEY=your_api_key_here
+```
+その後、コンテナを再起動してください。
 
 ## Development
 
