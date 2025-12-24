@@ -6,10 +6,11 @@ interface Props {
     isOpen: boolean;
     onClose: () => void;
     content: string | null;
+    prompt: string | null;
     loading: boolean;
 }
 
-export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, loading }) => {
+export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, prompt, loading }) => {
     if (!isOpen) return null;
 
     return (
@@ -29,10 +30,23 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, loa
                             <p style={{ fontWeight: 500, color: '#666' }}>AIがプロジェクトデータを分析中です...</p>
                         </div>
                     ) : content ? (
-                        <div className="markdown-container">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                {content}
-                            </ReactMarkdown>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                            <div className="markdown-container">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                    {content}
+                                </ReactMarkdown>
+                            </div>
+
+                            {prompt && (
+                                <details style={detailsStyle}>
+                                    <summary style={summaryStyle}>
+                                        <span>🔍 送信プロンプト（デバッグ用）</span>
+                                    </summary>
+                                    <div style={promptContainerStyle}>
+                                        <pre style={preStyle}>{prompt}</pre>
+                                    </div>
+                                </details>
+                            )}
                         </div>
                     ) : (
                         <p style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>分析結果が見つかりませんでした。</p>
@@ -44,6 +58,41 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, loa
             </div>
         </div>
     );
+};
+
+const detailsStyle: React.CSSProperties = {
+    border: '1px solid #e2e8f0',
+    borderRadius: '12px',
+    background: '#f8fafc',
+    overflow: 'hidden'
+};
+
+const summaryStyle: React.CSSProperties = {
+    padding: '1rem',
+    cursor: 'pointer',
+    fontWeight: 600,
+    fontSize: '0.9rem',
+    color: '#64748b',
+    userSelect: 'none',
+    listStyle: 'none'
+};
+
+const promptContainerStyle: React.CSSProperties = {
+    padding: '0 1rem 1rem 1rem',
+    borderTop: '1px solid #e2e8f0'
+};
+
+const preStyle: React.CSSProperties = {
+    whiteSpace: 'pre-wrap',
+    wordBreak: 'break-all',
+    fontSize: '0.85rem',
+    fontFamily: 'monospace',
+    color: '#334155',
+    margin: '1rem 0 0 0',
+    padding: '1rem',
+    background: '#ffffff',
+    borderRadius: '8px',
+    border: '1px solid #e2e8f0'
 };
 
 const overlayStyle: React.CSSProperties = {
@@ -63,10 +112,10 @@ const overlayStyle: React.CSSProperties = {
 
 const modalStyle: React.CSSProperties = {
     background: '#ffffff',
-    width: '90%',
-    maxWidth: '1000px',
-    height: '85vh',
-    maxHeight: '900px',
+    width: '95%',
+    maxWidth: '1400px',
+    height: '92vh',
+    maxHeight: '95vh',
     borderRadius: '16px',
     display: 'flex',
     flexDirection: 'column',
@@ -111,7 +160,10 @@ const closeButtonStyle: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
-    padding: '0.75rem 2rem',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.75rem 2.5rem',
     background: '#3b82f6',
     color: '#ffffff',
     border: 'none',
@@ -119,6 +171,8 @@ const buttonStyle: React.CSSProperties = {
     cursor: 'pointer',
     fontWeight: 600,
     fontSize: '1rem',
+    lineHeight: 1,
+    whiteSpace: 'nowrap',
     boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.5)',
     transition: 'all 0.2s'
 };

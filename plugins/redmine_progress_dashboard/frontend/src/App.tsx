@@ -31,6 +31,7 @@ function App({ projectId }: Props) {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [analysisText, setAnalysisText] = useState<string | null>(null);
+  const [promptContent, setPromptContent] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
 
   const handleAnalyze = async () => {
@@ -39,9 +40,11 @@ function App({ projectId }: Props) {
     try {
       const result = await analyzeDashboard(projectId);
       setAnalysisText(result.analysis);
+      setPromptContent(result.prompt);
     } catch (error) {
       console.error(error);
       setAnalysisText('分析に失敗しました。詳細については管理者に問い合わせてください。');
+      setPromptContent(null);
     } finally {
       setAnalyzing(false);
     }
@@ -83,7 +86,7 @@ function App({ projectId }: Props) {
     <div className="dashboard-container" style={{ padding: '1rem', fontFamily: 'Sans-Serif', background: '#f6f6f6' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
         <h1 style={{ margin: 0 }}>Project Progress Dashboard</h1>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexShrink: 0 }}>
           {data.available_projects && (
             <ProjectFilter
               projects={data.available_projects}
@@ -104,7 +107,9 @@ function App({ projectId }: Props) {
               boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '8px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0
             }}
           >
             <span>✨</span> AIで分析する
@@ -130,6 +135,7 @@ function App({ projectId }: Props) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         content={analysisText}
+        prompt={promptContent}
         loading={analyzing}
       />
     </div>

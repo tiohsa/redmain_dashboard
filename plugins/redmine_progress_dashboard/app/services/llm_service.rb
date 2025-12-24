@@ -2,10 +2,11 @@ class LlmService
   def self.analyze(data)
     prompt = build_prompt(data)
     provider = create_provider
-    provider.analyze(prompt)
+    analysis = provider.analyze(prompt)
+    { analysis: analysis, prompt: prompt }
   rescue StandardError => e
     Rails.logger.error("LLM Analysis Failed: #{e.class} #{e.message}\n#{e.backtrace.join("\n")}")
-    MockProvider.new.analyze(prompt)
+    { analysis: MockProvider.new.analyze(prompt), prompt: prompt }
   end
 
   private
