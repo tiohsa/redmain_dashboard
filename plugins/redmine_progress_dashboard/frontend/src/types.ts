@@ -27,6 +27,7 @@ export interface DelayAnalysis {
 
 export interface Issue {
     id: number;
+    project_name: string;
     subject: string;
     status: string;
     assigned_to: string;

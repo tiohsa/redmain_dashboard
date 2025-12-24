@@ -2,7 +2,7 @@ class DashboardDataService
   def initialize(project, params = {})
     @project = project
     @params = params
-    @issues_scope = filter_issues(@project.issues.visible)
+    @issues_scope = filter_issues(Issue.visible.where(project_id: @project.self_and_descendants.pluck(:id)))
   end
 
   def kpi_summary
@@ -208,10 +208,10 @@ class DashboardDataService
   end
 
   def issue_list
-    # Detailed list for table
-    @issues_scope.map do |i|
+    @issues_scope.includes(:project, :status, :assigned_to).map do |i|
       {
         id: i.id,
+        project_name: i.project.name,
         subject: i.subject,
         status: i.status.name,
         assigned_to: i.assigned_to ? i.assigned_to.name : '',

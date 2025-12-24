@@ -19,6 +19,7 @@ export const IssueTable: React.FC<Props> = ({ data }) => {
                     <thead>
                         <tr style={{ borderBottom: '2px solid #ddd', textAlign: 'left' }}>
                             <th style={thStyle}>ID</th>
+                            <th style={thStyle}>Project</th>
                             <th style={thStyle}>Subject</th>
                             <th style={thStyle}>Status</th>
                             <th style={thStyle}>Assigned To</th>
@@ -31,6 +32,7 @@ export const IssueTable: React.FC<Props> = ({ data }) => {
                         {data.slice(0, 50).map(issue => (
                             <tr key={issue.id} style={{ borderBottom: '1px solid #eee' }}>
                                 <td style={tdStyle}><a href={`/issues/${issue.id}`} target="_blank" rel="noopener noreferrer">#{issue.id}</a></td>
+                                <td style={tdStyle}>{issue.project_name}</td>
                                 <td style={tdStyle}>{issue.subject}</td>
                                 <td style={tdStyle}>{issue.status}</td>
                                 <td style={tdStyle}>{issue.assigned_to}</td>
