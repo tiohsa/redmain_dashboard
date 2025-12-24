@@ -229,7 +229,8 @@ class DashboardDataService
       status_distribution: status_distribution,
       workload: workload_analysis,
       delay_analysis: delay_analysis,
-      issues: issue_list
+      issues: issue_list,
+      available_projects: available_projects
     }
   end
 
@@ -252,7 +253,19 @@ class DashboardDataService
     buckets
   end
 
+  def available_projects
+    @project.self_and_descendants.order(:lft).pluck(:id, :name).map do |id, name|
+      { id: id, name: name }
+    end
+  end
+
   def filter_issues(scope)
+    # Filter by target_project_ids if present (for multi-project selection)
+    if @params[:target_project_ids].present?
+      ids = @params[:target_project_ids].map(&:to_i)
+      scope = scope.where(project_id: ids)
+    end
+
     # Filter by version if present
     if @params[:version_id].present?
       scope = scope.where(fixed_version_id: @params[:version_id])

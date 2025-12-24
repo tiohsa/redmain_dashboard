@@ -43,4 +43,5 @@ export interface DashboardData {
     workload: WorkloadData;
     delay_analysis: DelayAnalysis;
     issues: Issue[];
+    available_projects: { id: number; name: string }[];
 }
