@@ -22,5 +22,5 @@ export default defineConfig({
       },
     },
   },
-  base: './', // Use relative paths
+  base: '/plugin_assets/redmine_progress_dashboard/', // Redmine's plugin asset path
 })
