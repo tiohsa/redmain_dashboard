@@ -85,7 +85,7 @@ function App({ projectId }: Props) {
   return (
     <div className="dashboard-container" style={{ padding: '1rem', fontFamily: 'Sans-Serif', background: '#f6f6f6' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h1 style={{ margin: 0 }}>Project Progress Dashboard</h1>
+
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexShrink: 0 }}>
           {data.available_projects && (
             <ProjectFilter
