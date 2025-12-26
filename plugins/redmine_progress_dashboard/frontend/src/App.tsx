@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, useRef, type ReactNode } from 'react';
 import { fetchDashboardData } from './api/dashboard';
 import type { DashboardData } from './types';
 import { KPICards } from './components/KPICards';
@@ -95,6 +95,18 @@ function App({ projectId }: Props) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
+
+  // Outside click handler for settings
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setSettingsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const [panelOrder, setPanelOrder] = useState<string[]>(() => {
     const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
@@ -241,67 +253,128 @@ function App({ projectId }: Props) {
           </button>
 
           {/* Settings Button */}
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', display: 'inline-block' }} ref={settingsRef}>
             <button
               onClick={() => setSettingsOpen(!settingsOpen)}
               style={{
-                padding: '0.8rem 1rem',
+                padding: '0.8rem 1.5rem',
                 background: '#fff',
-                color: '#333',
-                border: '1px solid #ccc',
+                border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                fontWeight: 'bold',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '0.8rem',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                fontWeight: 500,
+                fontSize: '1rem',
+                color: '#333',
+                transition: 'all 0.2s ease'
               }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
-              <span>⚙️</span> 表示設定
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '1.1rem' }}>⚙️</span>
+                表示設定
+              </span>
+              <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>{settingsOpen ? '▲' : '▼'}</span>
             </button>
 
             {settingsOpen && (
               <div
                 style={{
                   position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  marginTop: '4px',
+                  top: 'calc(100% + 8px)',
+                  left: 0,
+                  right: 'auto',
                   background: '#fff',
-                  border: '1px solid #ccc',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
                   zIndex: 1000,
-                  minWidth: '200px',
-                  padding: '0.5rem 0',
+                  minWidth: '220px',
+                  width: 'max-content',
+                  maxWidth: '90vw',
+                  padding: '0.8rem',
+                  border: '1px solid rgba(0,0,0,0.05)'
                 }}
               >
-                <div style={{ padding: '0.5rem 1rem', fontWeight: 'bold', borderBottom: '1px solid #eee', marginBottom: '0.5rem' }}>
-                  パネル表示
+                <div style={{ padding: '0 0.5rem 0.8rem 0.5rem', borderBottom: '1px solid #f0f0f0', marginBottom: '0.5rem' }}>
+                  <div style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>パネル表示</div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      onClick={() => {
+                        const newVisibility = DEFAULT_PANEL_ORDER.reduce((acc, id) => ({ ...acc, [id]: true }), {});
+                        setVisiblePanels(newVisibility);
+                        localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(newVisibility));
+                      }}
+                      style={{
+                        background: '#f0f2f5',
+                        border: 'none',
+                        color: '#1976d2',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem',
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        fontWeight: 500
+                      }}
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => {
+                        const newVisibility = DEFAULT_PANEL_ORDER.reduce((acc, id) => ({ ...acc, [id]: false }), {});
+                        setVisiblePanels(newVisibility);
+                        localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(newVisibility));
+                      }}
+                      style={{
+                        background: '#f0f2f5',
+                        border: 'none',
+                        color: '#1976d2',
+                        cursor: 'pointer',
+                        fontSize: '0.8rem',
+                        padding: '4px 12px',
+                        borderRadius: '20px',
+                        fontWeight: 500
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
                 </div>
-                {DEFAULT_PANEL_ORDER.map((panelId) => (
-                  <label
-                    key={panelId}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 1rem',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                    }}
-                    onMouseOver={(e) => (e.currentTarget.style.background = '#f5f5f5')}
-                    onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={visiblePanels[panelId] ?? true}
-                      onChange={() => togglePanelVisibility(panelId)}
-                      style={{ width: '16px', height: '16px' }}
-                    />
-                    {PANEL_LABELS[panelId]}
-                  </label>
-                ))}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                  {DEFAULT_PANEL_ORDER.map((panelId) => (
+                    <label
+                      key={panelId}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '8px 12px',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        borderRadius: '6px',
+                        transition: 'background 0.2s',
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
+                      onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={visiblePanels[panelId] ?? true}
+                        onChange={() => togglePanelVisibility(panelId)}
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          cursor: 'pointer',
+                          accentColor: '#6e8efb',
+                          marginRight: '0.5rem'
+                        }}
+                      />
+                      <span style={{ color: '#444' }}>{PANEL_LABELS[panelId]}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
             )}
           </div>
