@@ -41,22 +41,22 @@ export const ProjectFilter: React.FC<Props> = ({ projects, selectedIds, onChange
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 style={{
-                    padding: '0.8rem 1.5rem',
+                    padding: '0 12px',
                     background: '#fff',
-                    border: 'none',
-                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.8rem',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                    gap: '0.6rem',
                     fontWeight: 500,
-                    fontSize: '1rem',
+                    fontSize: '0.9rem',
                     color: '#333',
-                    transition: 'all 0.2s ease'
+                    transition: 'all 0.2s ease',
+                    height: '32px'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = '#bbb'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = '#ddd'}
             >
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <span style={{ fontSize: '1.1rem' }}>📁</span>
