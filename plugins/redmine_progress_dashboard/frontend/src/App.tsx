@@ -76,17 +76,47 @@ const DEFAULT_PANEL_ORDER = [
   'version_progress',
 ];
 
+const PANEL_LABELS: Record<string, string> = {
+  kpi: 'KPI Summary',
+  burndown: 'Burndown Chart',
+  velocity: 'Velocity',
+  status_dist: 'Status Distribution',
+  tracker_dist: 'Ticket Types',
+  workload: 'Workload',
+  delay: 'Delay Analysis',
+  version_progress: 'Version Progress',
+};
+
 function App({ projectId }: Props) {
   const STORAGE_KEY = `dashboard_projects_${projectId}`;
   const LAYOUT_STORAGE_KEY = `dashboard_panel_order_${projectId}_v1`;
+  const VISIBILITY_STORAGE_KEY = `dashboard_panel_visibility_${projectId}_v1`;
 
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [panelOrder, setPanelOrder] = useState<string[]>(() => {
     const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
     return saved ? JSON.parse(saved) : DEFAULT_PANEL_ORDER;
   });
+
+  const [visiblePanels, setVisiblePanels] = useState<Record<string, boolean>>(() => {
+    const saved = localStorage.getItem(VISIBILITY_STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    // Default: all visible
+    return DEFAULT_PANEL_ORDER.reduce((acc, id) => ({ ...acc, [id]: true }), {});
+  });
+
+  const togglePanelVisibility = (panelId: string) => {
+    setVisiblePanels((prev) => {
+      const newState = { ...prev, [panelId]: !prev[panelId] };
+      localStorage.setItem(VISIBILITY_STORAGE_KEY, JSON.stringify(newState));
+      return newState;
+    });
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -176,6 +206,8 @@ function App({ projectId }: Props) {
     version_progress: <VersionProgressList data={data.version_progress} />,
   };
 
+  const visiblePanelOrder = panelOrder.filter((id) => visiblePanels[id]);
+
   return (
     <div className="dashboard-container" style={{ padding: '1rem', fontFamily: 'Sans-Serif', background: '#f6f6f6' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -207,6 +239,72 @@ function App({ projectId }: Props) {
           >
             <span>✨</span> AIで分析する
           </button>
+
+          {/* Settings Button */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setSettingsOpen(!settingsOpen)}
+              style={{
+                padding: '0.8rem 1rem',
+                background: '#fff',
+                color: '#333',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+              }}
+            >
+              <span>⚙️</span> 表示設定
+            </button>
+
+            {settingsOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  marginTop: '4px',
+                  background: '#fff',
+                  border: '1px solid #ccc',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  zIndex: 1000,
+                  minWidth: '200px',
+                  padding: '0.5rem 0',
+                }}
+              >
+                <div style={{ padding: '0.5rem 1rem', fontWeight: 'bold', borderBottom: '1px solid #eee', marginBottom: '0.5rem' }}>
+                  パネル表示
+                </div>
+                {DEFAULT_PANEL_ORDER.map((panelId) => (
+                  <label
+                    key={panelId}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      cursor: 'pointer',
+                      userSelect: 'none',
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.background = '#f5f5f5')}
+                    onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={visiblePanels[panelId] ?? true}
+                      onChange={() => togglePanelVisibility(panelId)}
+                      style={{ width: '16px', height: '16px' }}
+                    />
+                    {PANEL_LABELS[panelId]}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -215,9 +313,9 @@ function App({ projectId }: Props) {
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <SortableContext items={panelOrder} strategy={rectSortingStrategy}>
+        <SortableContext items={visiblePanelOrder} strategy={rectSortingStrategy}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-            {panelOrder.map((panelId) => (
+            {visiblePanelOrder.map((panelId) => (
               <SortableItem key={panelId} id={panelId}>
                 {panelComponents[panelId]}
               </SortableItem>
