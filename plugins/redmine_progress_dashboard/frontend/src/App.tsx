@@ -222,7 +222,7 @@ function App({ projectId }: Props) {
 
   return (
     <div className="dashboard-container" style={{ padding: '1rem', fontFamily: 'Sans-Serif', background: '#f6f6f6' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexShrink: 0 }}>
           {data.available_projects && (
             <ProjectFilter
@@ -231,26 +231,6 @@ function App({ projectId }: Props) {
               onChange={handleProjectChange}
             />
           )}
-          <button
-            onClick={handleAnalyze}
-            style={{
-              padding: '0.8rem 1.5rem',
-              background: 'linear-gradient(135deg, #6e8efb, #a777e3)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              whiteSpace: 'nowrap',
-              flexShrink: 0
-            }}
-          >
-            <span>✨</span> AIで分析する
-          </button>
 
           {/* Settings Button */}
           <div style={{ position: 'relative', display: 'inline-block' }} ref={settingsRef}>
@@ -286,8 +266,8 @@ function App({ projectId }: Props) {
                 style={{
                   position: 'absolute',
                   top: 'calc(100% + 8px)',
-                  left: 0,
-                  right: 'auto',
+                  left: 'auto',
+                  right: 0,
                   background: '#fff',
                   borderRadius: '12px',
                   boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
@@ -378,6 +358,27 @@ function App({ projectId }: Props) {
               </div>
             )}
           </div>
+
+          <button
+            onClick={handleAnalyze}
+            style={{
+              padding: '0.8rem 1.5rem',
+              background: 'linear-gradient(135deg, #6e8efb, #a777e3)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0
+            }}
+          >
+            <span>✨</span> AIで分析する
+          </button>
         </div>
       </div>
 

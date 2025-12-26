@@ -69,8 +69,8 @@ export const ProjectFilter: React.FC<Props> = ({ projects, selectedIds, onChange
                 <div style={{
                     position: 'absolute',
                     top: 'calc(100% + 8px)',
-                    left: 0,
-                    right: 'auto',
+                    left: 'auto',
+                    right: 0,
                     background: '#fff',
                     borderRadius: '12px',
                     boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
