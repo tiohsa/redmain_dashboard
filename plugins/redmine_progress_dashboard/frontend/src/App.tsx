@@ -6,6 +6,9 @@ import { BurndownChart } from './components/BurndownChart';
 import { StatusDistribution } from './components/StatusDistribution';
 import { WorkloadChart } from './components/WorkloadChart';
 import { DelayAnalysis } from './components/DelayAnalysis';
+import { TrackerPieChart } from './components/TrackerPieChart';
+import { VersionProgressList } from './components/VersionProgressList';
+import { VelocityChart } from './components/VelocityChart';
 
 import { AiAnalysisModal } from './components/AiAnalysisModal';
 import { ProjectFilter } from './components/ProjectFilter';
@@ -121,12 +124,21 @@ function App({ projectId }: Props) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
         <BurndownChart data={data.burndown} />
+        <VelocityChart data={data.velocity} />
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
         <StatusDistribution data={data.status_distribution} />
+        <TrackerPieChart data={data.tracker_distribution} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
         <WorkloadChart data={data.workload} />
         <DelayAnalysis data={data.delay_analysis} />
+      </div>
+
+      <div style={{ marginBottom: '2rem' }}>
+        <VersionProgressList data={data.version_progress} />
       </div>
 
 

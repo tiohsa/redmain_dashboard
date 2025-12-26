@@ -16,7 +16,31 @@ export interface StatusDistribution {
 }
 
 export interface WorkloadData {
-    series: { name: string; count: number; estimated_hours: number }[];
+    series: { name: string; count: number; estimated_hours: number; spent_hours: number }[];
+}
+
+export interface TrackerDistribution {
+    series: { name: string; value: number }[];
+}
+
+export interface VersionProgress {
+    versions: {
+        id: number;
+        name: string;
+        status: string;
+        due_date: string | null;
+        completed_rate: number;
+        estimated_hours: number;
+        spent_hours: number;
+    }[];
+}
+
+export interface Velocity {
+    series: {
+        week: string;
+        count: number;
+        points: number;
+    }[];
 }
 
 export interface DelayAnalysis {
@@ -42,6 +66,9 @@ export interface DashboardData {
     status_distribution: StatusDistribution;
     workload: WorkloadData;
     delay_analysis: DelayAnalysis;
+    tracker_distribution: TrackerDistribution;
+    version_progress: VersionProgress;
+    velocity: Velocity;
     issues: Issue[];
     available_projects: { id: number; name: string }[];
 }

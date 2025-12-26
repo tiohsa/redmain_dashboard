@@ -3,6 +3,7 @@ class DashboardDataService
     @project = project
     @params = params
     @issues_scope = filter_issues(Issue.visible.where(project_id: @project.self_and_descendants.pluck(:id)))
+    @all_issues_scope = Issue.visible.where(project_id: @project.self_and_descendants.pluck(:id))
   end
 
   def kpi_summary
@@ -163,7 +164,8 @@ class DashboardDataService
       {
         name: user ? user.name : 'Unassigned',
         count: user_issues.count,
-        estimated_hours: user_issues.sum { |i| i.estimated_hours || 0 }.round(1)
+        estimated_hours: user_issues.sum { |i| i.estimated_hours || 0 }.round(1),
+        spent_hours: user_issues.sum { |i| i.spent_hours || 0 }.round(1)
       }
     end.sort_by { |d| -d[:count] } # Sort by count desc
     
@@ -207,6 +209,84 @@ class DashboardDataService
     }
   end
 
+
+  def tracker_distribution
+    issues = @issues_scope
+    # Group by tracker name directly using SQL
+    # This avoids the issue where group(:tracker) returns IDs instead of objects
+    grouped = issues.joins(:tracker).group('trackers.name').count
+    series = grouped.map do |name, count|
+      {
+        name: name,
+        value: count
+      }
+    end.sort_by { |d| -d[:value] }
+
+    { series: series }
+  end
+
+  def version_progress
+    # Get versions shared with this project
+    versions = @project.shared_versions.open
+    
+    data = versions.map do |version|
+      # Calculate progress based on issues in the version
+      # Redmine Version model has estimated_hours, spent_hours, etc.
+      # Redmine Version model compatibility
+      completed_rate = if version.respond_to?(:completed_percent)
+                         version.completed_percent
+                       elsif version.respond_to?(:completed_pourcent)
+                         version.completed_pourcent
+                       else
+                         0
+                       end
+
+      est_hours = version.respond_to?(:estimated_hours) ? version.estimated_hours : 0
+      sp_hours = version.respond_to?(:spent_hours) ? version.spent_hours : 0
+      
+      {
+        id: version.id,
+        name: version.name,
+        status: version.status,
+        due_date: version.effective_date,
+        completed_rate: completed_rate,
+        estimated_hours: est_hours || 0,
+        spent_hours: sp_hours || 0
+      }
+    end.sort_by { |v| v[:due_date] || Date.today + 10.years }
+
+    { versions: data }
+  end
+
+  def velocity
+    # Calculate velocity (completed issues/points per week)
+    # Default lookback 12 weeks
+    start_date = 12.weeks.ago.beginning_of_week.to_date
+    end_date = Date.today.end_of_week.to_date
+
+    # Use @all_issues_scope to ignore current filters if we want general team velocity?
+    # Or should we respect filters? Usually velocity is for the team/project regardless of current drill-down, 
+    # but if the user filters by "Assignee A", they might want to see Assignee A's velocity.
+    # Let's use @issues_scope to respect filters (e.g. subproject selection).
+    
+    closed_issues = @issues_scope.where(status_id: IssueStatus.where(is_closed: true))
+                                 .where('closed_on >= ?', start_date)
+    
+    # Group by week
+    grouped = closed_issues.group_by { |i| i.closed_on.to_date.beginning_of_week }
+    
+    series = (start_date..end_date).step(7).map do |date|
+      week_issues = grouped[date] || []
+      {
+        week: date.strftime("%Y-%m-%d"),
+        count: week_issues.count,
+        points: week_issues.sum { |i| i.estimated_hours || 0 }.round(1)
+      }
+    end
+
+    { series: series }
+  end
+
   def issue_list
     @issues_scope.includes(:project, :status, :assigned_to).map do |i|
       {
@@ -229,6 +309,9 @@ class DashboardDataService
       status_distribution: status_distribution,
       workload: workload_analysis,
       delay_analysis: delay_analysis,
+      tracker_distribution: tracker_distribution,
+      version_progress: version_progress,
+      velocity: velocity,
       issues: issue_list,
       available_projects: available_projects
     }
