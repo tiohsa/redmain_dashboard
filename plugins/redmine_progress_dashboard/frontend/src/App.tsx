@@ -6,7 +6,7 @@ import { BurndownChart } from './components/BurndownChart';
 import { StatusDistribution } from './components/StatusDistribution';
 import { WorkloadChart } from './components/WorkloadChart';
 import { DelayAnalysis } from './components/DelayAnalysis';
-import { IssueTable } from './components/IssueTable';
+
 import { AiAnalysisModal } from './components/AiAnalysisModal';
 import { ProjectFilter } from './components/ProjectFilter';
 import { analyzeDashboard } from './api/dashboard';
@@ -60,7 +60,7 @@ function App({ projectId }: Props) {
     // If not initialized (no storage), do not pass target_project_ids to get default (All)
     // If initialized and empty, pass [-1] to show nothing (or handle as empty)
     // If initialized and has ids, pass them
-    let params: any = {};
+    const params: { target_project_ids?: number[] } = {};
     if (isInitialized) {
       params.target_project_ids = targetProjectIds.length > 0 ? targetProjectIds : [-1];
     }
@@ -77,7 +77,7 @@ function App({ projectId }: Props) {
         setIsInitialized(true);
       }
     }).catch(console.error).finally(() => setLoading(false));
-  }, [projectId, targetProjectIds, isInitialized]); // Depend on targetProjectIds to refetch on change
+  }, [projectId, targetProjectIds, isInitialized, STORAGE_KEY]); // Depend on targetProjectIds to refetch on change
 
   if (loading) return <div>Loading dashboard data...</div>;
   if (!data) return <div>Error loading data. Check console.</div>;
@@ -129,7 +129,7 @@ function App({ projectId }: Props) {
         <DelayAnalysis data={data.delay_analysis} />
       </div>
 
-      <IssueTable data={data.issues} />
+
 
       <AiAnalysisModal
         isOpen={isModalOpen}
