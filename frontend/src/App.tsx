@@ -195,8 +195,8 @@ function App({ projectId }: Props) {
     }).catch(console.error).finally(() => setLoading(false));
   }, [projectId, targetProjectIds, isInitialized, STORAGE_KEY]);
 
-  if (loading) return <div>{data?.labels.loading || 'Loading dashboard data...'}</div>;
-  if (!data) return <div>{data?.labels.error || 'Error loading data. Check console.'}</div>;
+  if (loading) return <div>{data?.labels?.loading || 'Loading dashboard data...'}</div>;
+  if (!data) return <div>Error loading data. Check console.</div>;
 
   const panelComponents: Record<string, ReactNode> = {
     kpi: <KPICards data={data.kpis} labels={data.labels} />,

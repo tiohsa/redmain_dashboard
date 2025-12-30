@@ -15,7 +15,7 @@ export const StatusDistribution: React.FC<Props> = ({ data, labels }) => {
     // Recharts: [{date: d1, S1: 1, S2: 3}, {date: d2, S1: 2, S2: 4}]
 
     const chartData = data.dates.map((date, index) => {
-        const entry: any = { date };
+        const entry: Record<string, number | string> = { date };
         data.series.forEach(s => {
             entry[s.name] = s.data[index];
         });

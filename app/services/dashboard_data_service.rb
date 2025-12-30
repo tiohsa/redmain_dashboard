@@ -1,4 +1,5 @@
 class DashboardDataService
+  include Redmine::I18n
   def initialize(project, params = {})
     @project = project
     @params = params

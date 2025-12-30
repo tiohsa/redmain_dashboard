@@ -19,7 +19,7 @@ export const WorkloadChart: React.FC<Props> = ({ data, labels }) => {
                     {labels.workload}
                     <InfoTooltip text={labels.tooltip_workload || labels.workload} />
                 </h3>
-                <select value={mode} onChange={(e) => setMode(e.target.value as any)}>
+                <select value={mode} onChange={(e) => setMode(e.target.value as 'count' | 'hours')}>
                     <option value="count">{labels.issue_count || 'Issue Count'}</option>
                     <option value="hours">{labels.hours || 'Hours (Est vs Spent)'}</option>
                 </select>
