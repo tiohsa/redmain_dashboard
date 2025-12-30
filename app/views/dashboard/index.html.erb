@@ -1,0 +1,9 @@
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'dashboard', plugin: 'redmine_progress_dashboard' %>
+<% end %>
+
+<div id="dashboard-root" data-project-id="<%= @project.identifier %>" style="min-height: 500px;">
+  <div class="flash notice">Loading Dashboard...</div>
+</div>
+
+<%= javascript_include_tag 'dashboard', plugin: 'redmine_progress_dashboard' %>
