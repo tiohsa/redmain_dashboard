@@ -23,7 +23,8 @@ export const BurndownChart: React.FC<Props> = ({ data, labels }) => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="count" stroke="#8884d8" name={labels.remaining_issues} />
+                    <Line type="monotone" dataKey="count" data={data.ideal} stroke="#82ca9d" strokeDasharray="5 5" name={labels.ideal_line} dot={false} />
+                    <Line type="monotone" dataKey="count" data={data.series} stroke="#8884d8" name={labels.remaining_issues} />
                 </LineChart>
             </ResponsiveContainer>
         </div>

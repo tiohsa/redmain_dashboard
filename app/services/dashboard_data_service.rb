@@ -32,11 +32,46 @@ class DashboardDataService
     # WIP数 (WIP Count) - Open issues
     wip_count = issues.open.count
 
+    # Throughput (Last 7 days)
+    throughput = issues.where(status_id: IssueStatus.where(is_closed: true))
+                       .where("#{Issue.table_name}.closed_on >= ?", 7.days.ago)
+                       .count
+
+    # Due Date Setting Rate (Open issues)
+    open_issues = issues.open
+    open_count = open_issues.count
+    due_date_set_count = open_issues.where.not(due_date: nil).count
+    due_date_rate = open_count > 0 ? (due_date_set_count.to_f / open_count * 100).round(1) : 0
+    unset_due_date_count = open_count - due_date_set_count
+
+    # Bottleneck Rate (Open issues not updated in last 7 days)
+    stagnant_count = open_issues.where("#{Issue.table_name}.updated_on < ?", 7.days.ago).count
+    bottleneck_rate = open_count > 0 ? (stagnant_count.to_f / open_count * 100).round(1) : 0
+
+    # Assignee Concentration
+    assignee_counts = open_issues.group(:assigned_to_id).count
+    max_assignee_count = assignee_counts.values.max || 0
+    concentration_high = false
+    
+    if open_count > 2
+      # High if one person has > 50% of tasks OR > 5 tasks
+      if (max_assignee_count.to_f / open_count > 0.5) || max_assignee_count > 5
+        concentration_high = true
+      end
+    end
+
     {
       completion_rate: completion_rate,
       delayed_count: delayed_count,
       avg_lead_time: avg_lead_time,
-      wip_count: wip_count
+      wip_count: wip_count,
+      throughput: throughput,
+      due_date_rate: due_date_rate,
+      unset_due_date_count: unset_due_date_count,
+      bottleneck_rate: bottleneck_rate,
+      stagnant_count: stagnant_count,
+      assignee_concentration: concentration_high ? 'High' : 'Normal',
+      top_assignee_count: max_assignee_count
     }
   end
 
@@ -67,8 +102,26 @@ class DashboardDataService
 
     {
       series: chart_data,
-      ideal: [] # TODO: Calculate ideal line based on start/end scope
+      ideal: calculate_ideal_line(chart_data, start_date, end_date)
     }
+  end
+
+  def calculate_ideal_line(chart_data, start_date, end_date)
+    return [] if chart_data.empty?
+
+    start_value = chart_data.first[:count].to_f
+    total_days = (end_date - start_date).to_i
+    
+    return [] if total_days <= 0
+
+    (start_date..end_date).map do |date|
+      days_passed = (date - start_date).to_i
+      ideal_value = start_value - (start_value * (days_passed.to_f / total_days))
+      {
+        date: date.to_s,
+        count: [ideal_value, 0].max.round(1)
+      }
+    end
   end
 
   def status_distribution
@@ -454,6 +507,7 @@ class DashboardDataService
         tooltip_avg_lead_time: l(:tooltip_avg_lead_time),
         tooltip_wip_count: l(:tooltip_wip_count),
         tooltip_burndown_chart: l(:tooltip_burndown_chart),
+        ideal_line: l(:label_ideal_line),
         tooltip_velocity: l(:tooltip_velocity),
         tooltip_version_progress: l(:tooltip_version_progress),
         tooltip_delay_analysis: l(:tooltip_delay_analysis),
@@ -480,7 +534,19 @@ class DashboardDataService
         generate: l(:label_generate),
         generating: l(:label_generating),
         analyzing: l(:label_analyzing),
-        close: l(:label_close)
+        close: l(:label_close),
+        label_throughput: l(:label_throughput),
+        tooltip_throughput: l(:tooltip_throughput),
+        label_due_date_rate: l(:label_due_date_rate),
+        tooltip_due_date_rate: l(:tooltip_due_date_rate),
+        label_bottleneck_rate: l(:label_bottleneck_rate),
+        tooltip_bottleneck_rate: l(:tooltip_bottleneck_rate),
+        label_assignee_concentration: l(:label_assignee_concentration),
+        tooltip_assignee_concentration: l(:tooltip_assignee_concentration),
+        text_items_per_week: l(:text_items_per_week),
+        text_unset: l(:text_unset),
+        text_stagnant_ratio: l(:text_stagnant_ratio),
+        text_concentration_high: l(:text_concentration_high)
       }
     }
   end

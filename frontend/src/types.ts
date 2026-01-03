@@ -3,11 +3,18 @@ export interface KpiSummary {
     delayed_count: number;
     avg_lead_time: number;
     wip_count: number;
+    throughput: number;
+    due_date_rate: number;
+    unset_due_date_count: number;
+    bottleneck_rate: number;
+    stagnant_count: number;
+    assignee_concentration: string;
+    top_assignee_count: number;
 }
 
 export interface BurndownData {
     series: { date: string; count: number }[];
-    ideal: any[];
+    ideal: { date: string; count: number }[];
 }
 
 export interface StatusDistribution {
