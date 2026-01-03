@@ -546,7 +546,9 @@ class DashboardDataService
         text_items_per_week: l(:text_items_per_week),
         text_unset: l(:text_unset),
         text_stagnant_ratio: l(:text_stagnant_ratio),
-        text_concentration_high: l(:text_concentration_high)
+        text_concentration_high: l(:text_concentration_high),
+        label_issue_list: l(:label_issue_list),
+        tooltip_issue_list: l(:tooltip_issue_list)
       }
     }
   end

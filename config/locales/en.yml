@@ -67,3 +67,6 @@ en:
   label_generating: "Generating..."
   label_analyzing: "AI is analyzing project data..."
   label_close: "Close"
+
+  label_issue_list: "Issues Needing Attention"
+  tooltip_issue_list: "List of delayed or stagnant (7+ days without update) issues. Click to open details."

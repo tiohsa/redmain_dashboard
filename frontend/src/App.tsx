@@ -12,6 +12,7 @@ import { VelocityChart } from './components/VelocityChart';
 import { PriorityChart } from './components/PriorityChart';
 import { CumulativeFlowChart } from './components/CumulativeFlowChart';
 import { CycleTimeChart } from './components/CycleTimeChart';
+import { IssueListPanel } from './components/IssueListPanel';
 
 import { AiAnalysisModal } from './components/AiAnalysisModal';
 import { ProjectFilter } from './components/ProjectFilter';
@@ -58,11 +59,25 @@ function SortableItem({ id, children }: SortableItemProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    cursor: 'grab',
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} {...attributes}>
+      <div
+        {...listeners}
+        style={{
+          cursor: 'grab',
+          padding: '4px 8px',
+          backgroundColor: '#f0f0f0',
+          borderRadius: '4px 4px 0 0',
+          textAlign: 'center',
+          fontSize: '0.75rem',
+          color: '#888',
+          userSelect: 'none',
+        }}
+      >
+        ⠿
+      </div>
       {children}
     </div>
   );
@@ -80,6 +95,7 @@ const DEFAULT_PANEL_ORDER = [
   'workload',
   'delay',
   'version_progress',
+  'issue_list',
 ];
 
 // PANEL_LABELS moved to dynamic labels from backend
@@ -239,6 +255,7 @@ function App({ projectId }: Props) {
     priority_dist: <PriorityChart data={data.priority_distribution} labels={data.labels} />,
     cumulative_flow: <CumulativeFlowChart data={data.cumulative_flow} labels={data.labels} />,
     cycle_time: <CycleTimeChart data={data.cycle_time} labels={data.labels} />,
+    issue_list: <IssueListPanel issues={data.issues} labels={data.labels} baseUrl={window.location.origin} />,
   };
 
   const visiblePanelOrder = panelOrder.filter((id) => visiblePanels[id]);
