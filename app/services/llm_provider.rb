@@ -14,7 +14,7 @@ class LlmProvider
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.scheme == 'https')
     http.open_timeout = 10
-    http.read_timeout = 60
+    http.read_timeout = 120
 
     request = Net::HTTP::Post.new(uri.request_uri, headers)
     request.body = body.to_json

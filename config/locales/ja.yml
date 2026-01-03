@@ -67,6 +67,7 @@ ja:
   label_generating: "生成中..."
   label_analyzing: "AIがプロジェクトデータを分析中です..."
   label_close: "閉じる"
+  label_download_html: "HTMLをダウンロード"
 
   label_issue_list: "注意が必要なチケット"
   tooltip_issue_list: "遅延しているか、7日以上更新のないチケットの一覧です。クリックすると詳細を開きます。"

@@ -28,6 +28,42 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, ini
         onGenerate(provider, promptText);
     };
 
+    const extractHtmlContent = (text: string | null): string | null => {
+        if (!text) return null;
+        const trimmed = text.trim();
+
+        // Check for markdown code block: ```html ... ```
+        const codeBlockMatch = trimmed.match(/^```(?:html)?\s*\n?([\s\S]*?)\n?```$/);
+        if (codeBlockMatch) {
+            return codeBlockMatch[1].trim();
+        }
+
+        return trimmed;
+    };
+
+    const isHtmlContent = (text: string | null): boolean => {
+        const extracted = extractHtmlContent(text);
+        if (!extracted) return false;
+        return extracted.startsWith('<!DOCTYPE html>') || extracted.startsWith('<html');
+    };
+
+    const getDisplayContent = (): string | null => {
+        if (!content) return null;
+        return extractHtmlContent(content);
+    };
+
+    const handleDownload = () => {
+        const htmlContent = getDisplayContent();
+        if (!htmlContent) return;
+        const blob = new Blob([htmlContent], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `project_report_${new Date().toISOString().slice(0, 10)}.html`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div style={overlayStyle} onClick={onClose}>
             <div style={modalStyle} onClick={e => e.stopPropagation()}>
@@ -84,12 +120,21 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, ini
                             </div>
                         ) : (
                             content && (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                    <div className="markdown-container" style={markdownWrapperStyle}>
-                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                            {content}
-                                        </ReactMarkdown>
-                                    </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: '100%' }}>
+                                    {isHtmlContent(content) ? (
+                                        <iframe
+                                            srcDoc={getDisplayContent() ?? ''}
+                                            style={iframePreviewStyle}
+                                            sandbox="allow-same-origin allow-scripts"
+                                            title="HTML Preview"
+                                        />
+                                    ) : (
+                                        <div className="markdown-container" style={markdownWrapperStyle}>
+                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                {content}
+                                            </ReactMarkdown>
+                                        </div>
+                                    )}
                                 </div>
                             )
                         )}
@@ -97,6 +142,11 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, ini
                 </div>
 
                 <div style={footerStyle}>
+                    {content && isHtmlContent(content) && (
+                        <button style={downloadButtonStyle} onClick={handleDownload}>
+                            📥 {labels?.download_html || 'HTMLをダウンロード'}
+                        </button>
+                    )}
                     <button style={secondaryButtonStyle} onClick={onClose}>{labels?.close || '閉じる'}</button>
                 </div>
             </div>
@@ -238,4 +288,29 @@ const spinnerStyle: React.CSSProperties = {
     width: '40px', height: '40px',
     border: '3px solid #e2e8f0', borderTop: '3px solid #3b82f6',
     borderRadius: '50%', animation: 'spin 1s linear infinite', marginBottom: '1rem'
+};
+
+const iframePreviewStyle: React.CSSProperties = {
+    width: '100%',
+    height: '100%',
+    border: 'none',
+    borderRadius: '8px',
+    flex: 1,
+    minHeight: '500px'
+};
+
+const downloadButtonStyle: React.CSSProperties = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.75rem 2rem',
+    background: '#10b981',
+    color: '#ffffff',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontWeight: 600,
+    fontSize: '0.95rem',
+    marginRight: '0.75rem',
+    transition: 'all 0.2s'
 };

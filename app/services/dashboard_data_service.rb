@@ -548,7 +548,8 @@ class DashboardDataService
         text_stagnant_ratio: l(:text_stagnant_ratio),
         text_concentration_high: l(:text_concentration_high),
         label_issue_list: l(:label_issue_list),
-        tooltip_issue_list: l(:tooltip_issue_list)
+        tooltip_issue_list: l(:tooltip_issue_list),
+        download_html: l(:label_download_html)
       }
     }
   end
