@@ -288,6 +288,123 @@ class DashboardDataService
     { series: series }
   end
 
+  def priority_distribution
+    issues = @issues_scope
+    grouped = issues.joins(:priority).group('enumerations.name', 'enumerations.position').count
+    series = grouped.map do |(name, position), count|
+      {
+        name: name,
+        value: count,
+        position: position
+      }
+    end.sort_by { |d| d[:position] }
+
+    { series: series }
+  end
+
+  def cumulative_flow
+    start_date = @params[:start_date].present? ? Date.parse(@params[:start_date]) : 30.days.ago.to_date
+    end_date = @params[:end_date].present? ? Date.parse(@params[:end_date]) : Date.today
+
+    issues = @issues_scope
+    issue_ids = issues.pluck(:id)
+
+    # Get all issue status changes from journals
+    journals = Journal.joins(:details)
+                      .where(journalized_type: 'Issue', journalized_id: issue_ids)
+                      .where(journal_details: { prop_key: 'status_id' })
+                      .select("journals.created_on, journals.journalized_id, journal_details.old_value, journal_details.value")
+                      .order(created_on: :asc)
+
+    # Current status per issue
+    current_status_map = issues.pluck(:id, :status_id, :created_on).map { |id, sid, co| [id, { status_id: sid, created_on: co }] }.to_h
+    all_statuses = IssueStatus.all.pluck(:id, :name).to_h
+
+    # Build daily snapshots
+    series = []
+    (start_date..end_date).each do |date|
+      status_counts = Hash.new(0)
+
+      current_status_map.each do |issue_id, info|
+        next if info[:created_on].to_date > date
+
+        # Find the status as of this date
+        status_id = info[:status_id]
+        journals.select { |j| j.journalized_id == issue_id && j.created_on.to_date <= date }.each do |j|
+          status_id = j.value.to_i
+        end
+
+        status_name = all_statuses[status_id] || 'Unknown'
+        status_counts[status_name] += 1
+      end
+
+      series << {
+        date: date.to_s,
+        statuses: status_counts
+      }
+    end
+
+    { series: series, status_names: all_statuses.values }
+  end
+
+  def cycle_time
+    issues = @issues_scope.where(status_id: IssueStatus.where(is_closed: true))
+    issue_ids = issues.pluck(:id)
+
+    # Get all status change journals for closed issues
+    journals = Journal.joins(:details)
+                      .where(journalized_type: 'Issue', journalized_id: issue_ids)
+                      .where(journal_details: { prop_key: 'status_id' })
+                      .select("journals.created_on, journals.journalized_id, journal_details.old_value, journal_details.value")
+                      .order(:journalized_id, :created_on)
+
+    all_statuses = IssueStatus.all.pluck(:id, :name).to_h
+
+    # Calculate time spent in each status
+    status_durations = Hash.new { |h, k| h[k] = [] }
+
+    issue_ids.each do |issue_id|
+      issue = issues.find { |i| i.id == issue_id }
+      next unless issue
+
+      issue_journals = journals.select { |j| j.journalized_id == issue_id }
+
+      # Track status transitions
+      prev_status_id = nil
+      prev_time = issue.created_on
+
+      issue_journals.each do |j|
+        current_time = j.created_on
+        if prev_status_id
+          days = ((current_time - prev_time) / 1.day).round(1)
+          status_name = all_statuses[prev_status_id] || 'Unknown'
+          status_durations[status_name] << days
+        end
+        prev_status_id = j.value.to_i
+        prev_time = current_time
+      end
+
+      # Time in final status until closed
+      if prev_status_id && issue.closed_on
+        days = ((issue.closed_on - prev_time) / 1.day).round(1)
+        status_name = all_statuses[prev_status_id] || 'Unknown'
+        status_durations[status_name] << days
+      end
+    end
+
+    # Calculate averages
+    statuses = status_durations.map do |name, durations|
+      {
+        name: name,
+        avg_days: durations.any? ? (durations.sum / durations.size).round(1) : 0,
+        count: durations.size
+      }
+    end.sort_by { |s| -s[:avg_days] }
+
+    { statuses: statuses }
+  end
+
+
   def issue_list
     @issues_scope.includes(:project, :status, :assigned_to).map do |i|
       {
@@ -313,6 +430,9 @@ class DashboardDataService
       tracker_distribution: tracker_distribution,
       version_progress: version_progress,
       velocity: velocity,
+      priority_distribution: priority_distribution,
+      cumulative_flow: cumulative_flow,
+      cycle_time: cycle_time,
       issues: issue_list,
       available_projects: available_projects,
       labels: {
@@ -340,6 +460,12 @@ class DashboardDataService
         tooltip_tracker_dist: l(:tooltip_tracker_dist),
         tooltip_status_dist: l(:tooltip_status_dist),
         tooltip_workload: l(:tooltip_workload),
+        priority_dist: l(:label_priority_distribution),
+        cumulative_flow: l(:label_cumulative_flow),
+        cycle_time: l(:label_cycle_time),
+        tooltip_priority_dist: l(:tooltip_priority_dist),
+        tooltip_cumulative_flow: l(:tooltip_cumulative_flow),
+        tooltip_cycle_time: l(:tooltip_cycle_time),
         ai_analyze: l(:label_ai_analyze),
         display_settings: l(:label_display_settings),
         panel_display: l(:label_panel_display),

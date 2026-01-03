@@ -9,6 +9,9 @@ import { DelayAnalysis } from './components/DelayAnalysis';
 import { TrackerPieChart } from './components/TrackerPieChart';
 import { VersionProgressList } from './components/VersionProgressList';
 import { VelocityChart } from './components/VelocityChart';
+import { PriorityChart } from './components/PriorityChart';
+import { CumulativeFlowChart } from './components/CumulativeFlowChart';
+import { CycleTimeChart } from './components/CycleTimeChart';
 
 import { AiAnalysisModal } from './components/AiAnalysisModal';
 import { ProjectFilter } from './components/ProjectFilter';
@@ -71,6 +74,9 @@ const DEFAULT_PANEL_ORDER = [
   'velocity',
   'status_dist',
   'tracker_dist',
+  'priority_dist',
+  'cumulative_flow',
+  'cycle_time',
   'workload',
   'delay',
   'version_progress',
@@ -101,16 +107,24 @@ function App({ projectId }: Props) {
 
   const [panelOrder, setPanelOrder] = useState<string[]>(() => {
     const saved = localStorage.getItem(LAYOUT_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : DEFAULT_PANEL_ORDER;
+    if (saved) {
+      const savedOrder = JSON.parse(saved) as string[];
+      // Add any new panels from default that are missing in saved order
+      const missingPanels = DEFAULT_PANEL_ORDER.filter(id => !savedOrder.includes(id));
+      return [...savedOrder, ...missingPanels];
+    }
+    return DEFAULT_PANEL_ORDER;
   });
 
   const [visiblePanels, setVisiblePanels] = useState<Record<string, boolean>>(() => {
     const saved = localStorage.getItem(VISIBILITY_STORAGE_KEY);
+    // Start with all panels visible by default
+    const defaults = DEFAULT_PANEL_ORDER.reduce((acc, id) => ({ ...acc, [id]: true }), {} as Record<string, boolean>);
     if (saved) {
-      return JSON.parse(saved);
+      // Merge saved state with defaults (new panels default to visible)
+      return { ...defaults, ...JSON.parse(saved) };
     }
-    // Default: all visible
-    return DEFAULT_PANEL_ORDER.reduce((acc, id) => ({ ...acc, [id]: true }), {});
+    return defaults;
   });
 
   const togglePanelVisibility = (panelId: string) => {
@@ -222,6 +236,9 @@ function App({ projectId }: Props) {
     workload: <WorkloadChart data={data.workload} labels={data.labels} />,
     delay: <DelayAnalysis data={data.delay_analysis} labels={data.labels} />,
     version_progress: <VersionProgressList data={data.version_progress} labels={data.labels} />,
+    priority_dist: <PriorityChart data={data.priority_distribution} labels={data.labels} />,
+    cumulative_flow: <CumulativeFlowChart data={data.cumulative_flow} labels={data.labels} />,
+    cycle_time: <CycleTimeChart data={data.cycle_time} labels={data.labels} />,
   };
 
   const visiblePanelOrder = panelOrder.filter((id) => visiblePanels[id]);

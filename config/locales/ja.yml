@@ -30,6 +30,13 @@ ja:
   tooltip_status_dist: "チケットのステータスごとの分布です。特定のステータスに滞留が多い場合、ワークフローにボトルネックがある可能性があります。"
   tooltip_workload: "担当者ごとの作業負荷を表示します。負荷が極端に偏っている場合は、タスクの再分配を検討してください。"
 
+  label_priority_distribution: "優先度分布"
+  label_cumulative_flow: "累積フロー図"
+  label_cycle_time: "サイクルタイム分析"
+  tooltip_priority_dist: "チケットの優先度別の分布を表示します。高優先度チケットが多い場合は、優先度の見直しや対応力の強化が必要な可能性があります。"
+  tooltip_cumulative_flow: "ステータス別のチケット数を時系列で積み上げ表示します。特定のステータスが膨らみ続ける場合、ワークフローにボトルネックがあることを示唆します。"
+  tooltip_cycle_time: "各ステータスでチケットが滞在した平均日数を表示します。滞在時間が長いステータスはプロセス改善の対象となります。"
+
   label_ai_analyze: "AIで分析する"
   label_display_settings: "表示設定"
   label_panel_display: "パネル表示"

@@ -69,7 +69,23 @@ export interface DashboardData {
     tracker_distribution: TrackerDistribution;
     version_progress: VersionProgress;
     velocity: Velocity;
+    priority_distribution: PriorityDistribution;
+    cumulative_flow: CumulativeFlow;
+    cycle_time: CycleTime;
     issues: Issue[];
     available_projects: { id: number; name: string }[];
     labels: Record<string, string>;
+}
+
+export interface PriorityDistribution {
+    series: { name: string; value: number; position: number }[];
+}
+
+export interface CumulativeFlow {
+    series: { date: string; statuses: Record<string, number> }[];
+    status_names: string[];
+}
+
+export interface CycleTime {
+    statuses: { name: string; avg_days: number; count: number }[];
 }

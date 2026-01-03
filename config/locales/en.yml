@@ -30,6 +30,13 @@ en:
   tooltip_status_dist: "The distribution of issues by status. High accumulation in a particular status may indicate a bottleneck in the workflow."
   tooltip_workload: "Displays workload per assignee. If the load is extremely uneven, consider redistributing tasks."
 
+  label_priority_distribution: "Priority Distribution"
+  label_cumulative_flow: "Cumulative Flow"
+  label_cycle_time: "Cycle Time Analysis"
+  tooltip_priority_dist: "Displays the distribution of tickets by priority. A high number of high-priority tickets may indicate a need to review priorities or increase capacity."
+  tooltip_cumulative_flow: "Displays ticket counts by status over time in a stacked chart. If a particular status keeps growing, it suggests a bottleneck in the workflow."
+  tooltip_cycle_time: "Displays the average number of days tickets stay in each status. Statuses with long residence times are candidates for process improvement."
+
   label_ai_analyze: "Analyze with AI"
   label_display_settings: "Display Settings"
   label_panel_display: "Panel Display"
