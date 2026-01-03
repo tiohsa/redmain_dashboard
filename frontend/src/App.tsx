@@ -163,7 +163,7 @@ function App({ projectId }: Props) {
     setPromptContent(null); // Clear previous prompt
     try {
       // Preview mode: fetch prompt only
-      const result = await analyzeDashboard(projectId, { mode: 'preview' });
+      const result = await analyzeDashboard(projectId, { mode: 'preview', target_project_ids: targetProjectIds });
       setPromptContent(result.prompt);
     } catch (error) {
       console.error(error);
@@ -177,7 +177,7 @@ function App({ projectId }: Props) {
     setAnalyzing(true);
     setAnalysisText(null);
     try {
-      const result = await analyzeDashboard(projectId, { provider, prompt });
+      const result = await analyzeDashboard(projectId, { provider, prompt, target_project_ids: targetProjectIds });
       setAnalysisText(result.analysis);
     } catch (error) {
       console.error(error);

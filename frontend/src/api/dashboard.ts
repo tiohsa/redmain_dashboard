@@ -6,7 +6,7 @@ export const fetchDashboardData = async (projectId: string, filters?: any): Prom
     return response.data;
 };
 
-export const analyzeDashboard = async (projectId: string, options?: { mode?: 'preview', provider?: string, prompt?: string }): Promise<{ analysis: string; prompt: string }> => {
+export const analyzeDashboard = async (projectId: string, options?: { mode?: 'preview', provider?: string, prompt?: string, target_project_ids?: number[] }): Promise<{ analysis: string; prompt: string }> => {
     const response = await fetch(`/projects/${projectId}/dashboard/analyze`, {
         method: 'POST',
         headers: {

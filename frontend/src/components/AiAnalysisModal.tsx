@@ -41,29 +41,31 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, ini
 
                 <div style={bodyContainerStyle}>
                     <div style={settingsContainerStyle}>
-                        <div style={formGroupStyle}>
-                            <label style={labelStyle}>{labels?.ai_provider || 'AI提供元'}</label>
-                            <select
-                                value={provider}
-                                onChange={(e) => setProvider(e.target.value)}
-                                style={selectStyle}
-                            >
-                                <option value="gemini">Gemini</option>
-                                <option value="azure">Azure OpenAI</option>
-                            </select>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', flex: 1, overflowY: 'auto', paddingRight: '0.5rem' }}>
+                            <div style={formGroupStyle}>
+                                <label style={labelStyle}>{labels?.ai_provider || 'AI提供元'}</label>
+                                <select
+                                    value={provider}
+                                    onChange={(e) => setProvider(e.target.value)}
+                                    style={selectStyle}
+                                >
+                                    <option value="gemini">Gemini</option>
+                                    <option value="azure">Azure OpenAI</option>
+                                </select>
+                            </div>
+
+                            <div style={formGroupStyle}>
+                                <label style={labelStyle}>{labels?.prompt || 'プロンプト'}</label>
+                                <textarea
+                                    value={promptText}
+                                    onChange={(e) => setPromptText(e.target.value)}
+                                    style={textareaStyle}
+                                    rows={15}
+                                />
+                            </div>
                         </div>
 
-                        <div style={formGroupStyle}>
-                            <label style={labelStyle}>{labels?.prompt || 'プロンプト'}</label>
-                            <textarea
-                                value={promptText}
-                                onChange={(e) => setPromptText(e.target.value)}
-                                style={textareaStyle}
-                                rows={15}
-                            />
-                        </div>
-
-                        <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+                        <div style={{ paddingTop: '1.25rem', borderTop: '1px solid #e2e8f0', marginTop: '0.5rem' }}>
                             <button
                                 style={{ ...buttonStyle, width: '100%', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
                                 onClick={handleGenerateClick}
@@ -143,8 +145,8 @@ const settingsContainerStyle: React.CSSProperties = {
     padding: '1.5rem',
     background: '#f8fafc',
     borderRight: '1px solid #e2e8f0',
-    display: 'flex', flexDirection: 'column', gap: '1.25rem',
-    overflowY: 'auto'
+    display: 'flex', flexDirection: 'column',
+    overflow: 'hidden'
 };
 
 const contentStyle: React.CSSProperties = {
@@ -163,8 +165,9 @@ const footerStyle: React.CSSProperties = {
 };
 
 const closeButtonStyle: React.CSSProperties = {
-    background: 'none', border: 'none', fontSize: '2rem',
-    cursor: 'pointer', color: '#94a3b8', lineHeight: 1
+    background: 'none', border: 'none', fontSize: '1.5rem',
+    cursor: 'pointer', color: '#94a3b8', lineHeight: 1,
+    padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
 };
 
 const buttonStyle: React.CSSProperties = {
