@@ -165,9 +165,10 @@ const footerStyle: React.CSSProperties = {
 };
 
 const closeButtonStyle: React.CSSProperties = {
-    background: 'none', border: 'none', fontSize: '1.5rem',
+    background: 'none', border: 'none', fontSize: '1.25rem',
     cursor: 'pointer', color: '#94a3b8', lineHeight: 1,
-    padding: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+    padding: '0', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    width: '32px', height: '32px', overflow: 'hidden', flexShrink: 0
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -180,11 +181,13 @@ const buttonStyle: React.CSSProperties = {
 };
 
 const secondaryButtonStyle: React.CSSProperties = {
+    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
     padding: '0.75rem 2rem',
     background: '#fff', color: '#64748b',
     border: '1px solid #e2e8f0', borderRadius: '8px',
     cursor: 'pointer', fontWeight: 600, fontSize: '0.95rem',
-    marginRight: '0.5rem'
+    marginRight: '0.5rem',
+    lineHeight: '1.5'
 };
 
 const formGroupStyle: React.CSSProperties = {
