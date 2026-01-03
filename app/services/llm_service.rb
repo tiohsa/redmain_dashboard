@@ -52,8 +52,9 @@ class LlmService
     when 'azure_openai', 'azure'
       api_key = ENV['AZURE_OPENAI_API_KEY']
       endpoint = ENV['AZURE_OPENAI_ENDPOINT']
-      deployment = ENV['AZURE_OPENAI_DEPLOYMENT_ID']
-      return AzureOpenAiProvider.new(api_key, endpoint, deployment) if api_key.present? && endpoint.present? && deployment.present?
+      deployment = ENV['AZURE_OPENAI_DEPLOYMENT']
+      api_version = ENV['AZURE_OPENAI_API_VERSION']
+      return AzureOpenAiProvider.new(api_key, endpoint, deployment, api_version) if api_key.present? && endpoint.present? && deployment.present?
     end
 
     MockProvider.new

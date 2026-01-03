@@ -57,7 +57,8 @@ Specify the provider using the `LLM_PROVIDER` environment variable.
 ### Azure OpenAI Settings
 - `AZURE_OPENAI_API_KEY`: API key
 - `AZURE_OPENAI_ENDPOINT`: Endpoint URL (e.g., `https://YOUR_RESOURCE.openai.azure.com/`)
-- `AZURE_OPENAI_DEPLOYMENT_ID`: Deployment name
+- `AZURE_OPENAI_DEPLOYMENT`: Deployment name
+- `AZURE_OPENAI_API_VERSION`: API Version (e.g., `2024-02-15-preview`)
 
 ### Docker Compose Example (`.env.local`)
 Add the following to `.env.local` in your project root:

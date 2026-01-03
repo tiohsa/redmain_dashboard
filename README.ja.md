@@ -59,7 +59,8 @@ AIによるプロジェクト分析機能を使用するには、以下の環境
 ### Azure OpenAI の設定
 - `AZURE_OPENAI_API_KEY`: API キー
 - `AZURE_OPENAI_ENDPOINT`: エンドポイント URL (例: `https://YOUR_RESOURCE.openai.azure.com/`)
-- `AZURE_OPENAI_DEPLOYMENT_ID`: デプロイメント名
+- `AZURE_OPENAI_DEPLOYMENT`: デプロイメント名
+- `AZURE_OPENAI_API_VERSION`: API バージョン (例: `2024-02-15-preview`)
 
 ### Docker Compose での設定例 (`.env.local`)
 プロジェクトルートの `.env.local` に以下のように記述します：
