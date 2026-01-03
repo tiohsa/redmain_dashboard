@@ -342,7 +342,13 @@ class DashboardDataService
         loading: l(:label_loading_dashboard),
         error: l(:label_error_loading_data),
         ai_analysis_failed: l(:label_ai_analysis_failed),
-        remaining_issues: l(:label_remaining_issues)
+        remaining_issues: l(:label_remaining_issues),
+        ai_provider: l(:label_ai_provider),
+        prompt: l(:label_prompt),
+        generate: l(:label_generate),
+        generating: l(:label_generating),
+        analyzing: l(:label_analyzing),
+        close: l(:label_close)
       }
     }
   end

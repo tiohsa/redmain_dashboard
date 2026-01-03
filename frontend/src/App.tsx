@@ -413,6 +413,7 @@ function App({ projectId }: Props) {
         initialPrompt={promptContent}
         loading={analyzing}
         onGenerate={handleGenerate}
+        labels={data?.labels}
       />
     </div>
   );

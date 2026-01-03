@@ -9,9 +9,10 @@ interface Props {
     initialPrompt: string | null;
     loading: boolean;
     onGenerate: (provider: string, prompt: string) => void;
+    labels?: Record<string, string>;
 }
 
-export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, initialPrompt, loading, onGenerate }) => {
+export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, initialPrompt, loading, onGenerate, labels }) => {
     const [provider, setProvider] = useState<string>('gemini');
     const [promptText, setPromptText] = useState<string>('');
 
@@ -41,7 +42,7 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, ini
                 <div style={bodyContainerStyle}>
                     <div style={settingsContainerStyle}>
                         <div style={formGroupStyle}>
-                            <label style={labelStyle}>AI提供元</label>
+                            <label style={labelStyle}>{labels?.ai_provider || 'AI提供元'}</label>
                             <select
                                 value={provider}
                                 onChange={(e) => setProvider(e.target.value)}
@@ -53,7 +54,7 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, ini
                         </div>
 
                         <div style={formGroupStyle}>
-                            <label style={labelStyle}>プロンプト</label>
+                            <label style={labelStyle}>{labels?.prompt || 'プロンプト'}</label>
                             <textarea
                                 value={promptText}
                                 onChange={(e) => setPromptText(e.target.value)}
@@ -68,7 +69,7 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, ini
                                 onClick={handleGenerateClick}
                                 disabled={loading}
                             >
-                                {loading ? '生成中...' : '生成する'}
+                                {loading ? (labels?.generating || '生成中...') : (labels?.generate || '生成する')}
                             </button>
                         </div>
                     </div>
@@ -77,7 +78,7 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, ini
                         {loading ? (
                             <div style={loadingContainerStyle}>
                                 <div className="spinner" style={spinnerStyle} />
-                                <p style={{ fontWeight: 500, color: '#666' }}>AIがプロジェクトデータを分析中です...</p>
+                                <p style={{ fontWeight: 500, color: '#666' }}>{labels?.analyzing || 'AIがプロジェクトデータを分析中です...'}</p>
                             </div>
                         ) : (
                             content && (
@@ -94,7 +95,7 @@ export const AiAnalysisModal: React.FC<Props> = ({ isOpen, onClose, content, ini
                 </div>
 
                 <div style={footerStyle}>
-                    <button style={secondaryButtonStyle} onClick={onClose}>閉じる</button>
+                    <button style={secondaryButtonStyle} onClick={onClose}>{labels?.close || '閉じる'}</button>
                 </div>
             </div>
         </div>
