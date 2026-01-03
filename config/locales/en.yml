@@ -23,6 +23,12 @@ en:
   tooltip_avg_lead_time: "The average number of days from issue creation to completion. Shorter is more efficient, while longer times suggest waste in the process."
   tooltip_wip_count: "The number of currently ongoing (started but not completed) issues. Needs to be appropriate for the team's capacity; too many leads to inefficiency due to multi-tasking."
   tooltip_burndown_chart: "Displays the trend of remaining issues. It's on track if the actual line is near or below the ideal line. Significant deviation above suggests a need for replanning."
+  tooltip_velocity: "Shows the number of completed issues over recent periods. Consistently high values indicate good team productivity. A sudden drop may signal underlying issues."
+  tooltip_version_progress: "Displays the progress status for each version. If progress is low relative to the due date, consider adding resources or revisiting the scope."
+  tooltip_delay_analysis: "Detailed analysis of delayed tickets. Longer delays indicate more serious problems. Early action minimizes impact on the overall project."
+  tooltip_tracker_dist: "Shows the distribution of issues by type. A concentration in specific types may offer insights into project characteristics and issue trends."
+  tooltip_status_dist: "The distribution of issues by status. High accumulation in a particular status may indicate a bottleneck in the workflow."
+  tooltip_workload: "Displays workload per assignee. If the load is extremely uneven, consider redistributing tasks."
 
   label_ai_analyze: "Analyze with AI"
   label_display_settings: "Display Settings"
