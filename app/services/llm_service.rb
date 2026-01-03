@@ -14,72 +14,75 @@ class LlmService
     kpis = data[:kpis]
     burndown = data[:burndown]
     issues = data[:issues]
+    locale = I18n.locale.to_s
+    language_name = locale == 'ja' ? 'Japanese' : (locale == 'en' ? 'English' : locale)
 
     <<~PROMPT
       ## Role
 
-      あなたは、RedmineやJiraのデータを分析し、経営層やステークホルダーが「1分で現状を把握し、即座に意思決定できる」レベルの報告ダッシュボードを作成する、プロフェッショナルなプロジェクトマネージャー（PM）兼UI/UXデザイナーです。
+      You are a professional Project Manager (PM) and UI/UX Designer who analyzes Redmine/Jira data to create executive-level dashboard reports that enable stakeholders to understand the current status in 1 minute and make immediate decisions.
 
       ## Task
 
-      提供されたプロジェクトの生データ（KPI、チケットリスト、進捗推移）を元に、モダンな1枚のHTMLダッシュボードページを作成してください。
+      Based on the provided raw project data (KPIs, ticket list, progress trends), create a modern single-page HTML dashboard.
 
       ## Requirements (Content)
 
-      ### 構成（1ページに以下をすべて含める）:
+      ### Structure (include all on one page):
 
-      - ヘッダー: プロジェクト名、日付、進捗ステータス（Critical/Warning/Normal）
-      - KPIセクション: 主要KPI（完了率、遅延数、WIP等）をカード形式で表示
-      - 進捗グラフ: バーンダウンチャート（SVG）
-      - ボトルネック: 滞留チケット一覧テーブル
-      - リスク・対応方針: 簡潔なリスト形式
+      - Header: Project name, date, status indicator (Critical/Warning/Normal)
+      - KPI Section: Display key KPIs (completion rate, delays, WIP, etc.) as cards
+      - Progress Chart: Burndown chart (SVG)
+      - Bottlenecks: Table of stagnant tickets
+      - Risks & Actions: Concise list format
 
-      ### 分析のトーン:
+      ### Analysis Tone:
 
-      - 抽象的、精神論的な表現は避け、事実（Fact）に基づく。
-      - 問題点については「何が原因か（Why）」と「どうするか（What）」をセットで記載する。
-      - 意思決定者が判断しやすいよう、リスクレベル（Critical, Warning等）を明示する。
+      - Avoid abstract or philosophical expressions; base everything on facts.
+      - For each issue, include both "Why (root cause)" and "What (action to take)".
+      - Clearly indicate risk levels (Critical, Warning, etc.) to facilitate decision-making.
 
       ## Requirements (Design & Tech)
 
-      ### 技術スタック:
+      ### Tech Stack:
 
-      - HTML / CSS（単一ファイル完結）。
-      - アイコンは Font Awesome (cdnjs) を使用。
-      - フォントは Google Fonts (Noto Sans JP, Montserrat) を使用。
-      - グラフは SVG で作成し、グラデーションを用いてモダンに仕上げる。
+      - HTML / CSS (single file, self-contained).
+      - Use Font Awesome icons (cdnjs).
+      - Use Google Fonts (Noto Sans JP, Montserrat).
+      - Create charts using SVG with gradients for a modern look.
 
-      ### ビジュアルルール:
+      ### Visual Rules:
 
-      - カラーパレット: 遅延時は「赤 (#ef4444)」、通常時は「青 (#2563eb)」、警告は「オレンジ (#f59e0b)」をアクセントカラーにする。
-      - レイアウト: レスポンシブ対応、最大幅1400px、余白を適切に取る。
-      - フォントサイズ: タイトルは32px以上、本文は16px以上とし、視認性を優先。
-      - モダンな要素: 角丸 (border-radius)、ドロップシャドウ、グリッドレイアウトを活用。
+      - Color Palette: Red (#ef4444) for delays, Blue (#2563eb) for normal, Orange (#f59e0b) for warnings.
+      - Layout: Responsive design, max-width 1400px, appropriate margins.
+      - Font Size: Titles 32px+, body text 16px+, prioritize readability.
+      - Modern Elements: Use border-radius, drop shadows, and grid layout.
 
       ## Input Data
 
       ### KPI
-      - 完了率: #{kpis[:completion_rate]}%
-      - 遅延チケット数: #{kpis[:delayed_count]}
-      - 平均リードタイム: #{kpis[:avg_lead_time]} 日
-      - 仕掛り(WIP): #{kpis[:wip_count]}
-      - スループット(直近7日): #{kpis[:throughput]} 件
-      - 期日設定率: #{kpis[:due_date_rate]}% (未設定: #{kpis[:unset_due_date_count]}件)
-      - ボトルネック率: #{kpis[:bottleneck_rate]}% (滞留: #{kpis[:stagnant_count]}件)
-      - 担当者集中度: #{kpis[:assignee_concentration]} (最多担当: #{kpis[:top_assignee_count]}件)
+      - Completion Rate: #{kpis[:completion_rate]}%
+      - Delayed Tickets: #{kpis[:delayed_count]}
+      - Average Lead Time: #{kpis[:avg_lead_time]} days
+      - WIP (Work In Progress): #{kpis[:wip_count]}
+      - Throughput (Last 7 days): #{kpis[:throughput]} tickets
+      - Due Date Set Rate: #{kpis[:due_date_rate]}% (Unset: #{kpis[:unset_due_date_count]})
+      - Bottleneck Rate: #{kpis[:bottleneck_rate]}% (Stagnant: #{kpis[:stagnant_count]})
+      - Assignee Concentration: #{kpis[:assignee_concentration]} (Top assignee: #{kpis[:top_assignee_count]} tickets)
 
-      ### バーンダウン推移 (直近5日)
-      #{burndown[:series].last(5).map { |s| "- #{s[:date]}: 残り #{s[:count]}件" }.join("\n")}
+      ### Burndown Trend (Last 5 days)
+      #{burndown[:series].last(5).map { |s| "- #{s[:date]}: #{s[:count]} remaining" }.join("\n")}
 
-      ### 直近の重要チケット (上位10件)
-      #{issues.take(10).map { |i| "- ##{i[:id]} [#{i[:status]}] #{i[:subject]} (遅延: #{i[:delay_days]}日, 滞留: #{i[:stagnation_days]}日)" }.join("\n")}
+      ### Recent Important Tickets (Top 10)
+      #{issues.take(10).map { |i| "- ##{i[:id]} [#{i[:status]}] #{i[:subject]} (Delay: #{i[:delay_days]}d, Stagnant: #{i[:stagnation_days]}d)" }.join("\n")}
 
       ## Output Format
 
-      - HTMLコードのみを出力してください。説明文は不要です。
-      - 必ず `<!DOCTYPE html>` から始めてください。
-      - 1つのHTMLファイルにCSSをすべて含めてください。
-      - 1枚のページとしてスクロールで全体を閲覧できるようにしてください。
+      - Output HTML code only. No explanations needed.
+      - Must start with `<!DOCTYPE html>`.
+      - Include all CSS in a single HTML file.
+      - Create a single scrollable page.
+      - **IMPORTANT: All text content in the HTML must be in #{language_name}.**
     PROMPT
   end
 
