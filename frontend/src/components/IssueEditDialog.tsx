@@ -8,7 +8,7 @@ interface Props {
 }
 
 export const IssueEditDialog: React.FC<Props> = ({ issueId, baseUrl, onClose }) => {
-    const editUrl = `${baseUrl}/issues/${issueId}`;
+    const editUrl = `${baseUrl}/issues/${issueId}/edit`;
 
     const handleOverlayClick = (e: React.MouseEvent) => {
         // Only close if the background overlay was clicked directly
@@ -22,6 +22,24 @@ export const IssueEditDialog: React.FC<Props> = ({ issueId, baseUrl, onClose }) 
         onClose();
     };
 
+    const handleIframeLoad = (e: React.SyntheticEvent<HTMLIFrameElement, Event>) => {
+        try {
+            const iframe = e.currentTarget;
+            const doc = iframe.contentWindow?.document;
+            if (doc) {
+                const style = doc.createElement('style');
+                style.textContent = `
+                    #top-menu, #header { display: none !important; }
+                    #wrapper { margin: 0 !important; }
+                    .flyout-menu { display: none !important; }
+                `;
+                doc.head.appendChild(style);
+            }
+        } catch (err) {
+            console.warn('Cannot inject styles into iframe (likely CORS):', err);
+        }
+    };
+
     return createPortal(
         <div style={overlayStyle} onClick={handleOverlayClick}>
             <div style={dialogStyle}>
@@ -33,6 +51,7 @@ export const IssueEditDialog: React.FC<Props> = ({ issueId, baseUrl, onClose }) 
                     src={editUrl}
                     style={iframeStyle}
                     title={`Edit Issue #${issueId}`}
+                    onLoad={handleIframeLoad}
                 />
             </div>
         </div>,
@@ -56,9 +75,8 @@ const overlayStyle: React.CSSProperties = {
 const dialogStyle: React.CSSProperties = {
     backgroundColor: '#fff',
     borderRadius: '8px',
-    width: '90%',
-    maxWidth: '900px',
-    height: '80vh',
+    width: '95vw',
+    height: '95vh',
     display: 'flex',
     flexDirection: 'column',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
