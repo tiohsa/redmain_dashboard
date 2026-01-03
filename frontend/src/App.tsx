@@ -159,14 +159,29 @@ function App({ projectId }: Props) {
   const handleAnalyze = async () => {
     setIsModalOpen(true);
     setAnalyzing(true);
+    setAnalysisText(null); // Clear previous analysis
+    setPromptContent(null); // Clear previous prompt
     try {
-      const result = await analyzeDashboard(projectId);
-      setAnalysisText(result.analysis);
+      // Preview mode: fetch prompt only
+      const result = await analyzeDashboard(projectId, { mode: 'preview' });
       setPromptContent(result.prompt);
     } catch (error) {
       console.error(error);
+      setPromptContent('プロンプトの生成に失敗しました。');
+    } finally {
+      setAnalyzing(false); // Stop loading after prompt is fetched
+    }
+  };
+
+  const handleGenerate = async (provider: string, prompt: string) => {
+    setAnalyzing(true);
+    setAnalysisText(null);
+    try {
+      const result = await analyzeDashboard(projectId, { provider, prompt });
+      setAnalysisText(result.analysis);
+    } catch (error) {
+      console.error(error);
       setAnalysisText(data?.labels.ai_analysis_failed || '分析に失敗しました。詳細については管理者に問い合わせてください。');
-      setPromptContent(null);
     } finally {
       setAnalyzing(false);
     }
@@ -395,8 +410,9 @@ function App({ projectId }: Props) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         content={analysisText}
-        prompt={promptContent}
+        initialPrompt={promptContent}
         loading={analyzing}
+        onGenerate={handleGenerate}
       />
     </div>
   );

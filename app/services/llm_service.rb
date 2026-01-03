@@ -1,32 +1,12 @@
 class LlmService
-  def self.analyze(data)
-    prompt = build_prompt(data)
-    provider = create_provider
+  def self.analyze(data, provider_type: nil, prompt_override: nil)
+    prompt = prompt_override.presence || build_prompt(data)
+    provider = create_provider(provider_type)
     analysis = provider.analyze(prompt)
     { analysis: analysis, prompt: prompt }
   rescue StandardError => e
     Rails.logger.error("LLM Analysis Failed: #{e.class} #{e.message}\n#{e.backtrace.join("\n")}")
     { analysis: MockProvider.new.analyze(prompt), prompt: prompt }
-  end
-
-  private
-
-  def self.create_provider
-    provider_type = ENV['LLM_PROVIDER'] || 'mock'
-
-    case provider_type.downcase
-    when 'gemini'
-      api_key = ENV['GEMINI_API_KEY']
-      model = ENV['GEMINI_MODEL']
-      return GeminiProvider.new(api_key, model: model) if api_key.present?
-    when 'azure_openai'
-      api_key = ENV['AZURE_OPENAI_API_KEY']
-      endpoint = ENV['AZURE_OPENAI_ENDPOINT']
-      deployment = ENV['AZURE_OPENAI_DEPLOYMENT_ID']
-      return AzureOpenAiProvider.new(api_key, endpoint, deployment) if api_key.present? && endpoint.present? && deployment.present?
-    end
-
-    MockProvider.new
   end
 
   def self.build_prompt(data)
@@ -56,5 +36,25 @@ class LlmService
       2. プロセスの停滞（ボトルネック）はどこか？
       3. リソースの割り当てや優先度調整が必要な箇所は？
     PROMPT
+  end
+
+  private
+
+  def self.create_provider(provider_type = nil)
+    type = provider_type.presence || ENV['LLM_PROVIDER'] || 'mock'
+
+    case type.downcase
+    when 'gemini'
+      api_key = ENV['GEMINI_API_KEY']
+      model = ENV['GEMINI_MODEL']
+      return GeminiProvider.new(api_key, model: model) if api_key.present?
+    when 'azure_openai' || 'azure'
+      api_key = ENV['AZURE_OPENAI_API_KEY']
+      endpoint = ENV['AZURE_OPENAI_ENDPOINT']
+      deployment = ENV['AZURE_OPENAI_DEPLOYMENT_ID']
+      return AzureOpenAiProvider.new(api_key, endpoint, deployment) if api_key.present? && endpoint.present? && deployment.present?
+    end
+
+    MockProvider.new
   end
 end

@@ -3,9 +3,18 @@ class AiAnalysisController < ApplicationController
 
   def analyze
     data = DashboardDataService.new(@project, params).get_summary_data
-    result = LlmService.analyze(data)
-
-    render json: result
+    
+    if params[:mode] == 'preview'
+      prompt = LlmService.build_prompt(data)
+      render json: { prompt: prompt, analysis: '' }
+    else
+      result = LlmService.analyze(
+        data, 
+        provider_type: params[:provider], 
+        prompt_override: params[:prompt]
+      )
+      render json: result
+    end
   rescue => e
     Rails.logger.error("AI Analysis Error: #{e.message}\n#{e.backtrace.join("\n")}")
     render json: { 
