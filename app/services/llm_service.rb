@@ -1,5 +1,6 @@
 class LlmService
   def self.analyze(data, provider_type: nil, prompt_override: nil)
+    Rails.logger.info "LLM Analysis called. Provider: #{provider_type || 'default'}. Key present: #{ENV['GEMINI_API_KEY'].present?}"
     prompt = prompt_override.presence || build_prompt(data)
     provider = create_provider(provider_type)
     analysis = provider.analyze(prompt)
@@ -48,7 +49,7 @@ class LlmService
       api_key = ENV['GEMINI_API_KEY']
       model = ENV['GEMINI_MODEL']
       return GeminiProvider.new(api_key, model: model) if api_key.present?
-    when 'azure_openai' || 'azure'
+    when 'azure_openai', 'azure'
       api_key = ENV['AZURE_OPENAI_API_KEY']
       endpoint = ENV['AZURE_OPENAI_ENDPOINT']
       deployment = ENV['AZURE_OPENAI_DEPLOYMENT_ID']
