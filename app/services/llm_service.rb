@@ -25,6 +25,10 @@ class LlmService
       - 遅延チケット数: #{kpis[:delayed_count]}
       - 平均リードタイム: #{kpis[:avg_lead_time]} 日
       - 仕掛り(WIP): #{kpis[:wip_count]}
+      - スループット(直近7日): #{kpis[:throughput]} 件
+      - 期日設定率: #{kpis[:due_date_rate]}% (未設定: #{kpis[:unset_due_date_count]}件)
+      - ボトルネック率: #{kpis[:bottleneck_rate]}% (滞留: #{kpis[:stagnant_count]}件)
+      - 担当者集中度: #{kpis[:assignee_concentration]} (最多担当: #{kpis[:top_assignee_count]}件)
 
       ### バーンダウン推移 (直近5日)
       #{burndown[:series].last(5).map { |s| "- #{s[:date]}: 残り #{s[:count]}件" }.join("\n")}
