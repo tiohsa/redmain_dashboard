@@ -12,10 +12,8 @@ interface Props {
 export const IssueListPanel: React.FC<Props> = ({ issues, labels, baseUrl }) => {
     const [selectedIssueId, setSelectedIssueId] = useState<number | null>(null);
 
-    // Filter issues that need attention (delayed or stagnant)
-    const attentionIssues = issues.filter(
-        (issue) => issue.delay_days > 0 || issue.stagnation_days >= 7
-    );
+    // Previously filtered for attention issues. Now we show all issues, but highlight attention ones.
+    const displayIssues = issues;
 
     const handleRowClick = (issueId: number) => {
         setSelectedIssueId(issueId);
@@ -28,7 +26,7 @@ export const IssueListPanel: React.FC<Props> = ({ issues, labels, baseUrl }) => 
     return (
         <div style={containerStyle}>
             <h3 style={titleStyle}>
-                {labels.label_issue_list || '注意が必要なチケット'}
+                {labels.issue_list || 'チケット一覧'}
                 <InfoTooltip position="bottom" text={labels.tooltip_issue_list || ''} />
             </h3>
             <div style={tableContainerStyle}>
@@ -45,14 +43,14 @@ export const IssueListPanel: React.FC<Props> = ({ issues, labels, baseUrl }) => 
                         </tr>
                     </thead>
                     <tbody>
-                        {attentionIssues.length === 0 ? (
+                        {displayIssues.length === 0 ? (
                             <tr>
                                 <td colSpan={7} style={{ textAlign: 'center', padding: '24px', color: '#718096' }}>
-                                    注意が必要なチケットはありません
+                                    チケットはありません
                                 </td>
                             </tr>
                         ) : (
-                            attentionIssues.map((issue) => (
+                            displayIssues.map((issue) => (
                                 <tr
                                     key={issue.id}
                                     style={rowStyle}
