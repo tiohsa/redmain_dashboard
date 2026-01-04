@@ -69,5 +69,5 @@ ja:
   label_close: "閉じる"
   label_download_html: "HTMLをダウンロード"
 
-  label_issue_list: "注意が必要なチケット"
-  tooltip_issue_list: "遅延しているか、7日以上更新のないチケットの一覧です。クリックすると詳細を開きます。"
+  label_issue_list: "チケット一覧"
+  tooltip_issue_list: "プロジェクトのチケット一覧です。遅延や滞留しているチケットは強調表示されます。クリックすると詳細を開きます。"
