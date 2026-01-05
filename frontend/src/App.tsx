@@ -232,9 +232,11 @@ function App({ projectId }: Props) {
     fetchDashboardData(projectId, params).then(d => {
       setData(d);
       if (!isInitialized && d.available_projects) {
-        const allIds = d.available_projects.map(p => p.id);
-        setTargetProjectIds(allIds);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(allIds));
+        const currentId = Number(projectId);
+        const availableIds = d.available_projects.map(p => p.id);
+        const defaultIds = availableIds.includes(currentId) ? [currentId] : availableIds;
+        setTargetProjectIds(defaultIds);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultIds));
         setIsInitialized(true);
       }
     }).catch(console.error).finally(() => setLoading(false));
