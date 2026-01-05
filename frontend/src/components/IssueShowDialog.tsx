@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 interface Props {
@@ -9,6 +9,16 @@ interface Props {
 
 export const IssueShowDialog: React.FC<Props> = ({ issueId, baseUrl, onClose }) => {
     const showUrl = `${baseUrl}/issues/${issueId}`;
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [onClose]);
 
     const handleOverlayClick = (e: React.MouseEvent) => {
         // Only close if the background overlay was clicked directly
