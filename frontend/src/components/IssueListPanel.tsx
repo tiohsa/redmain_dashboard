@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Issue } from '../types';
-import { IssueEditDialog } from './IssueEditDialog';
 import { InfoTooltip } from './InfoTooltip';
+import { IssueShowDialog } from './IssueShowDialog';
 
 interface Props {
     issues: Issue[];
@@ -26,12 +26,13 @@ export const IssueListPanel: React.FC<Props> = ({ issues, labels, baseUrl }) => 
     };
 
     return (
-        <div style={containerStyle}>
-            <h3 style={titleStyle}>
-                {labels.label_issue_list || '注意が必要なチケット'}
-                <InfoTooltip position="bottom" text={labels.tooltip_issue_list || ''} />
-            </h3>
-            <div style={tableContainerStyle}>
+        <>
+            <div style={containerStyle}>
+                <h3 style={titleStyle}>
+                    {labels.label_issue_list || '注意が必要なチケット'}
+                    <InfoTooltip position="bottom" text={labels.tooltip_issue_list || ''} />
+                </h3>
+                <div style={tableContainerStyle}>
                 <table style={tableStyle}>
                     <thead>
                         <tr style={headerRowStyle}>
@@ -79,14 +80,15 @@ export const IssueListPanel: React.FC<Props> = ({ issues, labels, baseUrl }) => 
                     </tbody>
                 </table>
             </div>
+            </div>
             {selectedIssueId && (
-                <IssueEditDialog
+                <IssueShowDialog
                     issueId={selectedIssueId}
                     baseUrl={baseUrl}
                     onClose={handleCloseDialog}
                 />
             )}
-        </div>
+        </>
     );
 };
 
