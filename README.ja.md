@@ -137,4 +137,4 @@ plugins/redmine_progress_dashboard/
 
 ## ライセンス
 
-MIT License
+GNU General Public License v2.0 (GPLv2)
